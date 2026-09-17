@@ -1,0 +1,7 @@
+# Windows batch files must always keep CRLF line endings, regardless of
+# whoever commits or checks them out (cmd.exe's parser is unreliable with
+# LF-only line endings). This overrides any local core.autocrlf setting,
+# so a plain "git clone" or GitHub's "Download ZIP" always produces a
+# working .bat file.
+*.bat text eol=crlf
+*.cmd text eol=crlf
