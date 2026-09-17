@@ -2,13 +2,12 @@
 setlocal EnableExtensions
 title Windows Technician Toolkit PRO
 mode con: cols=100 lines=42
-chcp 65001 >nul
 
 :: ============================================================
 ::  WINDOWS TECHNICIAN TOOLKIT PRO
 ::  Powered by BASHAR SALMO
 ::  Auto-elevates, colored menus, reports, repair and network tools
-::  Supports English, Deutsch, Turkce and Arabic menus.
+::  Supports English, Deutsch and Turkce menus.
 ::  Note: output from native Windows tools (systeminfo, ipconfig,
 ::  driverquery, etc.) is always shown in whatever language Windows
 ::  itself produces it in - only the toolkit's own menus/messages
@@ -25,15 +24,11 @@ set "W=%ESC%[97m"
 set "D=%ESC%[90m"
 set "N=%ESC%[0m"
 
-:: ---- Startup splash ----
-call :Splash
-
 :: ---- Language selection (skipped if passed in as an argument, used when re-launching elevated) ----
 set "LANG=%~1"
 if /i "%LANG%"=="EN" goto langready
 if /i "%LANG%"=="DE" goto langready
 if /i "%LANG%"=="TR" goto langready
-if /i "%LANG%"=="AR" goto langready
 call :SelectLanguage
 :langready
 call :Lang_%LANG%
@@ -268,7 +263,7 @@ if "%opt%"=="6" goto repRestorePt
 if "%opt%"=="7" goto repWU
 if "%opt%"=="8" goto repWinget
 if "%opt%"=="9" goto repExplorer
-if "%opt%"=="10" start "" mdsched.exe & goto repair
+if "%opt%"=="10" goto repMemDiag
 if "%opt%"=="11" start "" ms-settings:windowsupdate & goto repair
 call :invalid
 goto repair
@@ -353,6 +348,10 @@ echo %G% %T_R_EXPLORERDONE%%N%
 timeout /t 2 >nul
 goto repair
 
+:repMemDiag
+if exist "%windir%\System32\mdsched.exe" (start "" "%windir%\System32\mdsched.exe") else (echo %Y% %T_R_MEMDIAGMISSING%%N% & pause)
+goto repair
+
 :: ============================================================
 :network
 call :header "%T_H_NETWORK%"
@@ -367,6 +366,8 @@ echo  %Y%[8]%N%  %T_N8%
 echo  %Y%[9]%N%  %T_N9%          %D%%T_N9D%%N%
 echo  %Y%[10]%N% %T_N10%
 echo  %Y%[11]%N% %T_N11%          %D%%T_N11D%%N%
+echo  %Y%[12]%N% %T_N12%
+echo  %Y%[13]%N% %T_N13%          %D%%T_N13D%%N%
 echo.
 echo  %R%[0]%N%  %T_BACK%
 echo.
@@ -384,6 +385,8 @@ if "%opt%"=="8" netsh wlan show profiles & pause & goto network
 if "%opt%"=="9" goto netConns
 if "%opt%"=="10" start "" ncpa.cpl & goto network
 if "%opt%"=="11" goto netReset
+if "%opt%"=="12" goto netWifiPass
+if "%opt%"=="13" goto netSpeed
 call :invalid
 goto network
 
@@ -445,6 +448,44 @@ netsh int ip reset
 ipconfig /flushdns
 echo.
 echo %Y% %T_N_RESETDONE%%N%
+pause
+goto network
+
+:netWifiPass
+call :header "%T_H_NETWORK%"
+echo %C% %T_N_WIFIGATHERING%%N%
+echo.
+setlocal EnableDelayedExpansion
+for /f "tokens=1,* delims=:" %%a in ('netsh wlan show profiles ^| findstr /i "All User Profile"') do (
+    set "RAWNAME=%%b"
+    for /f "tokens=* delims=: " %%z in ("!RAWNAME!") do set "PNAME=%%z"
+    set "PASS="
+    for /f "tokens=1,* delims=:" %%k in ('netsh wlan show profile name="!PNAME!" key=clear ^| findstr /i "Key Content"') do (
+        for /f "tokens=* delims=: " %%y in ("%%l") do set "PASS=%%y"
+    )
+    if defined PASS (
+        echo  %W%!PNAME!%N%  %D%-%N%  %G%!PASS!%N%
+    ) else (
+        echo  %W%!PNAME!%N%  %D%-%N%  %D%%T_N_WIFINOPASS%%N%
+    )
+)
+endlocal
+echo.
+pause
+goto network
+
+:netSpeed
+call :header "%T_H_NETWORK%"
+where speedtest >nul 2>&1
+if errorlevel 1 (
+    where winget >nul 2>&1 || (echo %Y% %T_R_WINGETMISSING%%N% & pause & goto network)
+    call :confirm "%T_N_SPEEDCONFIRM%" || goto network
+    echo %C% %T_N_SPEEDINSTALLING%%N%
+    winget install --id Ookla.Speedtest.CLI -e --silent --accept-source-agreements --accept-package-agreements
+    where speedtest >nul 2>&1 || (echo %Y% %T_N_SPEEDRETRY%%N% & pause & goto network)
+)
+call :Spin T_N_SPEEDRUNNING
+speedtest --accept-license --accept-gdpr
 pause
 goto network
 
@@ -600,40 +641,6 @@ exit /b
 :: ============================================================
 ::  ANIMATIONS
 :: ============================================================
-:Splash
-cls
-echo.
-echo.
-echo.
-echo %C%                    ════════════════════════════%N%
-powershell -NoProfile -Command "Start-Sleep -Milliseconds 180"
-cls
-echo.
-echo.
-echo.
-echo %C%                    ════════════════════════════%N%
-echo %W%                       WINDOWS TECHNICIAN%N%
-powershell -NoProfile -Command "Start-Sleep -Milliseconds 180"
-cls
-echo.
-echo.
-echo.
-echo %C%                    ════════════════════════════%N%
-echo %W%                     WINDOWS TECHNICIAN TOOLKIT%N%
-powershell -NoProfile -Command "Start-Sleep -Milliseconds 180"
-cls
-echo.
-echo.
-echo.
-echo %C%                    ════════════════════════════%N%
-echo %W%                   WINDOWS TECHNICIAN TOOLKIT PRO%N%
-echo %C%                    ════════════════════════════%N%
-echo.
-echo %D%                       EN  ·  DE  ·  TR  ·  AR%N%
-echo %D%                     Powered by BASHAR SALMO%N%
-powershell -NoProfile -Command "Start-Sleep -Milliseconds 500"
-exit /b
-
 :Spin
 setlocal
 set "MSGVAR=%~1"
@@ -657,15 +664,13 @@ echo.
 echo  %Y%[1]%N%  English
 echo  %Y%[2]%N%  Deutsch
 echo  %Y%[3]%N%  Turkce
-echo  %Y%[4]%N%  Arabic
 echo.
 set "langopt="
-set /p "langopt=%G% Select / Waehlen / Secin / Ikhtiyar (1-4): %N%"
+set /p "langopt=%G% Select / Waehlen / Secin (1-3): %N%"
 if "%langopt%"=="1" set "LANG=EN" & exit /b
 if "%langopt%"=="2" set "LANG=DE" & exit /b
 if "%langopt%"=="3" set "LANG=TR" & exit /b
-if "%langopt%"=="4" set "LANG=AR" & exit /b
-echo %R% Invalid choice / Ungueltige Eingabe / Gecersiz secim / خيار غير صالح - please enter 1, 2, 3 or 4%N%
+echo %R% Invalid choice / Ungueltige Eingabe / Gecersiz secim - please enter 1, 2 or 3%N%
 timeout /t 2 >nul
 goto SelectLanguage
 
@@ -763,6 +768,7 @@ set "T_R8=Update all apps"
 set "T_R8D=winget"
 set "T_R9=Restart Windows Explorer"
 set "T_R10=Memory diagnostic"
+set "T_R_MEMDIAGMISSING=Windows Memory Diagnostic - mdsched.exe - was not found on this system."
 set "T_R11=Open Windows Update"
 set "T_R_STEP1=Step 1 of 2: DISM..."
 set "T_R_STEP2=Step 2 of 2: SFC..."
@@ -786,6 +792,15 @@ set "T_N9D=saved to file"
 set "T_N10=Open Network Adapters"
 set "T_N11=Full network reset"
 set "T_N11D=needs restart"
+set "T_N12=Show saved Wi-Fi passwords"
+set "T_N13=Internet speed test"
+set "T_N13D=download, upload, ping"
+set "T_N_WIFIGATHERING=Reading saved Wi-Fi profiles..."
+set "T_N_WIFINOPASS=No password stored / open network"
+set "T_N_SPEEDCONFIRM=This installs Ookla's official Speedtest CLI, about 15 MB, via winget, then runs a real speed test. Continue?"
+set "T_N_SPEEDINSTALLING=Installing Speedtest CLI, one-time via winget..."
+set "T_N_SPEEDRETRY=Installed. Please close and reopen this toolkit, then run the speed test again."
+set "T_N_SPEEDRUNNING=Running speed test..."
 set "T_N_ROUTEROK=Router reachable -"
 set "T_N_ROUTERFAIL=Router not responding -"
 set "T_N_NOGATEWAY=No default gateway - check cable or Wi-Fi"
@@ -919,6 +934,7 @@ set "T_R8=Alle Apps aktualisieren"
 set "T_R8D=winget"
 set "T_R9=Windows-Explorer neu starten"
 set "T_R10=Speicherdiagnose"
+set "T_R_MEMDIAGMISSING=Windows-Speicherdiagnose - mdsched.exe - wurde auf diesem System nicht gefunden."
 set "T_R11=Windows Update oeffnen"
 set "T_R_STEP1=Schritt 1 von 2: DISM..."
 set "T_R_STEP2=Schritt 2 von 2: SFC..."
@@ -942,6 +958,15 @@ set "T_N9D=wird in Datei gespeichert"
 set "T_N10=Netzwerkadapter oeffnen"
 set "T_N11=Vollstaendiges Netzwerk-Reset"
 set "T_N11D=erfordert Neustart"
+set "T_N12=Gespeicherte WLAN-Passwoerter anzeigen"
+set "T_N13=Internet-Geschwindigkeitstest"
+set "T_N13D=Download, Upload, Ping"
+set "T_N_WIFIGATHERING=Gespeicherte WLAN-Profile werden gelesen..."
+set "T_N_WIFINOPASS=Kein Passwort gespeichert / offenes Netzwerk"
+set "T_N_SPEEDCONFIRM=Dies installiert Ooklas offizielle Speedtest-CLI, etwa 15 MB, ueber winget, und fuehrt dann einen echten Geschwindigkeitstest durch. Fortfahren?"
+set "T_N_SPEEDINSTALLING=Speedtest-CLI wird installiert, einmalig ueber winget..."
+set "T_N_SPEEDRETRY=Installiert. Bitte schliessen Sie dieses Toolkit und starten Sie es erneut, dann fuehren Sie den Geschwindigkeitstest noch einmal aus."
+set "T_N_SPEEDRUNNING=Geschwindigkeitstest laeuft..."
 set "T_N_ROUTEROK=Router erreichbar -"
 set "T_N_ROUTERFAIL=Router antwortet nicht -"
 set "T_N_NOGATEWAY=Kein Standardgateway - Kabel oder WLAN pruefen"
@@ -1075,6 +1100,7 @@ set "T_R8=Tum uygulamalari guncelle"
 set "T_R8D=winget"
 set "T_R9=Windows Gezgini'ni yeniden baslat"
 set "T_R10=Bellek tanilamasi"
+set "T_R_MEMDIAGMISSING=Windows Bellek Tanilama araci - mdsched.exe - bu sistemde bulunamadi."
 set "T_R11=Windows Update'i ac"
 set "T_R_STEP1=Adim 1/2: DISM..."
 set "T_R_STEP2=Adim 2/2: SFC..."
@@ -1098,6 +1124,15 @@ set "T_N9D=dosyaya kaydedilir"
 set "T_N10=Ag Bagdastiricilarini Ac"
 set "T_N11=Tam ag sifirlama"
 set "T_N11D=yeniden baslatma gerektirir"
+set "T_N12=Kayitli Wi-Fi sifrelerini goster"
+set "T_N13=Internet hiz testi"
+set "T_N13D=indirme, yukleme, ping"
+set "T_N_WIFIGATHERING=Kayitli Wi-Fi profilleri okunuyor..."
+set "T_N_WIFINOPASS=Sifre kayitli degil / acik ag"
+set "T_N_SPEEDCONFIRM=Bu islem, winget araciligiyla Ookla'nin resmi Speedtest CLI aracini, yaklasik 15 MB, yukler ve ardindan gercek bir hiz testi calistirir. Devam edilsin mi?"
+set "T_N_SPEEDINSTALLING=Speedtest CLI yukleniyor, winget araciligiyla tek seferlik..."
+set "T_N_SPEEDRETRY=Yuklendi. Lutfen bu arac setini kapatip yeniden acin, ardindan hiz testini tekrar calistirin."
+set "T_N_SPEEDRUNNING=Hiz testi calisiyor..."
 set "T_N_ROUTEROK=Yonlendiriciye ulasilabiliyor -"
 set "T_N_ROUTERFAIL=Yonlendirici yanit vermiyor -"
 set "T_N_NOGATEWAY=Varsayilan ag gecidi yok - kabloyu veya Wi-Fi'yi kontrol edin"
@@ -1135,162 +1170,6 @@ set "T_P_SAFEONCONFIRM=Bilgisayar, siz secenek 4 ile kapatana kadar Guvenli Mod'
 set "T_P_SAFEONNOTE=Unutmayin: Normal moda donmek icin bu arac setini Guvenli Mod'da calistirin ve secenek 4'u secin."
 set "T_P_RESTARTCONFIRM=Bilgisayar simdi yeniden baslatilsin mi?"
 set "T_P_SHUTDOWNCONFIRM=Bilgisayar simdi kapatilsin mi?"
-exit /b
-
-:Lang_AR
-set "T_SELECT=اختر خيارًا:"
-set "T_BACK=رجوع"
-set "T_EXIT=خروج"
-set "T_INVALID=خيار غير صالح، حاول مرة أخرى."
-set "T_GOODBYE=إلى اللقاء!"
-set "T_DONE=تم."
-set "T_CANCELLED=تم الإلغاء."
-set "T_WARNING=تحذير:"
-set "T_TYPEYES=اكتب YES للمتابعة:"
-set "T_LAUNCHED=تم التشغيل."
-set "T_PC=الجهاز:"
-set "T_USER=المستخدم:"
-set "T_REQADMIN=جارٍ طلب صلاحيات المسؤول..."
-set "T_POWEREDBY=بدعم من BASHAR SALMO"
-set "T_H_MAIN=القائمة الرئيسية"
-set "T_H_CONSOLES=أدوات الإدارة"
-set "T_H_SYSINFO=معلومات النظام والتقارير"
-set "T_H_QUICK=ملخص النظام السريع"
-set "T_H_DISK=سلامة القرص"
-set "T_H_ERRORS=الأحداث الحرجة والأخطاء - آخر 24 ساعة"
-set "T_H_LICENSE=حالة التفعيل"
-set "T_H_REPAIR=الإصلاح والصيانة"
-set "T_H_NETWORK=أدوات الشبكة"
-set "T_H_NETDIAG=تشخيص الاتصال"
-set "T_H_CLEANUP=التنظيف"
-set "T_H_POWER=الطاقة والإقلاع"
-set "T_M1=أدوات الإدارة"
-set "T_M1D=CMD، PowerShell، سجل النظام، الخدمات..."
-set "T_M2=معلومات النظام والتقارير"
-set "T_M2D=ملخص، البطارية، برامج التشغيل، الأخطاء"
-set "T_M3=الإصلاح والصيانة"
-set "T_M3D=SFC، DISM، CHKDSK، إصلاح ويندوز أبديت"
-set "T_M4=أدوات الشبكة"
-set "T_M4D=تشخيص، DNS، IP، واي فاي، إعادة تعيين"
-set "T_M5=التنظيف"
-set "T_M5D=الملفات المؤقتة، تنظيف القرص، مخزن المكونات"
-set "T_M6=الطاقة والإقلاع"
-set "T_M6D=BIOS، بدء التشغيل المتقدم، الوضع الآمن"
-set "T_M7=فتح مجلد التقارير"
-set "T_C1=CMD"
-set "T_C2=PowerShell"
-set "T_C3=محرر السجل"
-set "T_C4=الخدمات"
-set "T_C5=عارض الأحداث"
-set "T_C6=المستخدمون المحليون"
-set "T_C7=نهج المجموعة"
-set "T_C8=إدارة الكمبيوتر"
-set "T_C9=استعادة النظام"
-set "T_C10=إعدادات الاسترداد"
-set "T_C11=أمان ويندوز"
-set "T_C12=إدارة الأجهزة"
-set "T_C13=إدارة الأقراص"
-set "T_C14=إدارة المهام"
-set "T_C15=جدولة المهام"
-set "T_C16=تهيئة النظام"
-set "T_C17=لوحة التحكم"
-set "T_C18=البرامج والميزات"
-set "T_C19=جدار حماية ويندوز"
-set "T_C20=مراقب الموارد"
-set "T_C_USERSWARN=وحدة تحكم المستخدمين المحليين غير متاحة في ويندوز Home. سيتم فتح حسابات المستخدمين بدلاً من ذلك."
-set "T_C_GPWARN=محرر نهج المجموعة غير متاح في إصدارات ويندوز Home."
-set "T_S1=ملخص سريع للنظام"
-set "T_S2=تقرير كامل عن النظام"
-set "T_S2D=يُحفظ في ملف"
-set "T_S3=تقرير حالة البطارية"
-set "T_S3D=لأجهزة الكمبيوتر المحمولة"
-set "T_S4=قائمة البرامج المثبتة"
-set "T_S4D=يُحفظ في ملف"
-set "T_S5=قائمة برامج التشغيل"
-set "T_S5D=يُحفظ في ملف"
-set "T_S6=حالة سلامة القرص"
-set "T_S7=الأخطاء الحرجة الأخيرة"
-set "T_S7D=آخر 24 ساعة"
-set "T_S8=حالة تفعيل ويندوز"
-set "T_S_BUILDING=جارٍ إنشاء التقرير، يرجى الانتظار..."
-set "T_S_NOBATTERY=لم يتم العثور على بطارية في هذا الجهاز."
-set "T_S_COLLECTING=جارٍ جمع البرامج المثبتة..."
-set "T_S_SAVED=تم الحفظ:"
-set "T_R1=فاحص ملفات النظام"
-set "T_R1D=sfc /scannow"
-set "T_R2=إصلاح صورة DISM"
-set "T_R2D=RestoreHealth"
-set "T_R3=إصلاح كامل"
-set "T_R3D=DISM ثم SFC - موصى به"
-set "T_R4=فحص القرص - فحص فقط"
-set "T_R4D=آمن، بدون إعادة تشغيل"
-set "T_R5=فحص القرص - الإصلاح عند إعادة التشغيل"
-set "T_R6=إنشاء نقطة استعادة"
-set "T_R7=إعادة تعيين مكونات ويندوز أبديت"
-set "T_R8=تحديث جميع التطبيقات"
-set "T_R8D=winget"
-set "T_R9=إعادة تشغيل مستكشف ويندوز"
-set "T_R10=تشخيص الذاكرة"
-set "T_R11=فتح ويندوز أبديت"
-set "T_R_STEP1=الخطوة 1 من 2: DISM..."
-set "T_R_STEP2=الخطوة 2 من 2: SFC..."
-set "T_R_FULLDONE=اكتمل الإصلاح الكامل. يُنصح بإعادة التشغيل."
-set "T_R_CHKFIXCONFIRM=سيعمل CHKDSK على قرص النظام عند إعادة التشغيل التالية وقد يستغرق بعض الوقت."
-set "T_R_WUCONFIRM=سيؤدي هذا إلى إيقاف خدمات التحديث ومسح ذاكرة التخزين المؤقت لـ Windows Update."
-set "T_R_WUDONE=تمت إعادة تعيين مكونات ويندوز أبديت. أعد التشغيل ثم تحقق من وجود تحديثات."
-set "T_R_WINGETMISSING=winget غير مثبت. احصل على App Installer من متجر مايكروسوفت."
-set "T_R_WINGETCONFIRM=هل تريد تثبيت جميع التحديثات المذكورة أعلاه؟"
-set "T_R_EXPLORERDONE=تمت إعادة تشغيل المستكشف."
-set "T_N1=تشخيص سريع للاتصال"
-set "T_N2=عرض إعدادات IP"
-set "T_N3=عرض عنوان IP العام"
-set "T_N4=مسح ذاكرة التخزين المؤقت لـ DNS"
-set "T_N5=تحرير وتجديد عنوان IP"
-set "T_N6=إرسال Ping إلى مضيف"
-set "T_N7=تتبع المسار إلى مضيف"
-set "T_N8=شبكات واي فاي المحفوظة"
-set "T_N9=الاتصالات النشطة"
-set "T_N9D=يُحفظ في ملف"
-set "T_N10=فتح محولات الشبكة"
-set "T_N11=إعادة تعيين الشبكة بالكامل"
-set "T_N11D=يتطلب إعادة التشغيل"
-set "T_N_ROUTEROK=يمكن الوصول إلى جهاز التوجيه -"
-set "T_N_ROUTERFAIL=جهاز التوجيه لا يستجيب -"
-set "T_N_NOGATEWAY=لا توجد بوابة افتراضية - تحقق من الكابل أو واي فاي"
-set "T_N_INETOK=يمكن الوصول إلى الإنترنت"
-set "T_N_INETFAIL=لا يمكن الوصول إلى الإنترنت"
-set "T_N_DNSOK=DNS يحل الأسماء بنجاح"
-set "T_N_DNSFAIL=DNS لا يعمل - جرب مسح DNS أو إعادة تعيين الشبكة"
-set "T_N_RENEWCONFIRM=سينقطع اتصالك لبضع ثوانٍ."
-set "T_N_PINGPROMPT=المضيف أو عنوان IP لإرسال Ping إليه:"
-set "T_N_TRACEPROMPT=المضيف أو عنوان IP لتتبعه:"
-set "T_N_RESETCONFIRM=سيؤدي هذا إلى إعادة تعيين Winsock وTCP/IP. قد تحتاج إعدادات VPN والشبكة المخصصة إلى الإعداد من جديد."
-set "T_N_RESETDONE=تم. يرجى إعادة تشغيل جهاز الكمبيوتر لإنهاء العملية."
-set "T_L1=مسح ملفاتي المؤقتة"
-set "T_L2=مسح ملفات ويندوز المؤقتة"
-set "T_L3=إفراغ سلة المحذوفات"
-set "T_L4=تنظيف القرص"
-set "T_L5=تنظيف مخزن المكونات"
-set "T_L5D=DISM، يحرر مخلفات التحديثات"
-set "T_L6=إعدادات محسّن التخزين"
-set "T_L_USERTEMPCONFIRM=هل تريد حذف الملفات المؤقتة في مجلد Temp الخاص بك؟ سيتم تخطي الملفات قيد الاستخدام."
-set "T_L_WINTEMPCONFIRM=هل تريد حذف الملفات في مجلد Temp الخاص بويندوز؟ سيتم تخطي الملفات قيد الاستخدام."
-set "T_L_BINCONFIRM=هل تريد حذف كل ما في سلة المحذوفات نهائيًا؟"
-set "T_P1=إعادة التشغيل إلى BIOS / UEFI"
-set "T_P2=إعادة التشغيل إلى بدء التشغيل المتقدم"
-set "T_P3=الإقلاع في الوضع الآمن عند إعادة التشغيل التالية"
-set "T_P4=إيقاف الإقلاع في الوضع الآمن"
-set "T_P5=تطبيقات بدء التشغيل"
-set "T_P6=خطط الطاقة"
-set "T_P7=إعادة التشغيل الآن"
-set "T_P8=إيقاف التشغيل الآن"
-set "T_P_BIOSCONFIRM=احفظ عملك. سيُعاد تشغيل الجهاز إلى إعدادات البرامج الثابتة."
-set "T_P_BIOSFAIL=لا يدعم هذا الجهاز إعادة التشغيل إلى البرامج الثابتة من ويندوز."
-set "T_P_ADVCONFIRM=احفظ عملك. سيُعاد تشغيل الجهاز إلى بدء التشغيل المتقدم."
-set "T_P_SAFEONCONFIRM=سيقلع الجهاز في الوضع الآمن حتى تقوم بإيقافه باستخدام الخيار 4."
-set "T_P_SAFEONNOTE=تذكّر: شغّل هذه الأداة في الوضع الآمن واختر الخيار 4 للعودة إلى الوضع العادي."
-set "T_P_RESTARTCONFIRM=هل تريد إعادة تشغيل الكمبيوتر الآن؟"
-set "T_P_SHUTDOWNCONFIRM=هل تريد إيقاف تشغيل الكمبيوتر الآن؟"
 exit /b
 
 :quit

@@ -6,18 +6,19 @@ No installation, no dependencies. Just download and double-click.
 
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D6?logo=windows)
 ![Language](https://img.shields.io/badge/language-Batch-4D4D4D)
-![Languages](https://img.shields.io/badge/menus-EN%20%7C%20DE%20%7C%20TR%20%7C%20AR-6f42c1)
+![Languages](https://img.shields.io/badge/menus-EN%20%7C%20DE%20%7C%20TR-6f42c1)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
 ## ✨ Features
 
-- **Multi-language menus.** On launch, pick English, Deutsch, Türkçe, or Arabic; every menu, prompt, and status message is shown in that language for the rest of the session.
+- **Multi-language menus.** On launch, pick English, Deutsch, or Türkçe; every menu, prompt, and status message is shown in that language for the rest of the session.
 - **Auto-elevation.** It requests administrator rights automatically, so you don't need to right-click. Your language choice is carried over when it relaunches itself elevated.
 - **Colored, categorized menus.** Six sections keep 50+ tools easy to find.
 - **Safety prompts.** Anything risky asks you to type `YES` before running.
 - **Input validation.** Typing something other than a listed number never breaks the script — it shows a warning in your chosen language and re-asks until you enter a valid option.
+- **Loading spinner.** Slower operations (building a full report, collecting installed software, a full repair) show an animated spinner with a status message instead of sitting there silently.
 - **Saved reports.** Reports are saved with timestamps to `%USERPROFILE%\TechToolkit_Reports`.
 - **Activity log.** Every action is recorded in `toolkit_log.txt`.
 - **Windows Home aware.** On Home editions, it shows a fallback or an explanation for tools that edition doesn't include.
@@ -64,6 +65,8 @@ No installation, no dependencies. Just download and double-click.
 - Saved Wi-Fi networks
 - Active connections (saved to a file)
 - Full network reset (Winsock and TCP/IP)
+- **Show saved Wi-Fi passwords** for every network this PC has stored credentials for
+- **Internet speed test** (download / upload / ping) via Ookla's official Speedtest CLI, installed automatically through `winget` the first time you use it
 
 ### 5. Cleanup
 - User temp files and Windows temp files
@@ -88,9 +91,8 @@ The first screen asks you to pick a language:
 | 1 | English |
 | 2 | Deutsch |
 | 3 | Türkçe |
-| 4 | العربية (Arabic) |
 
-Entering anything other than `1`-`4` just shows a warning and asks again — it won't crash or silently pick a language for you. The choice is remembered through the administrator-elevation relaunch, so you're only asked once per run.
+Entering anything other than `1`-`3` just shows a warning and asks again — it won't crash or silently pick a language for you. The choice is remembered through the administrator-elevation relaunch, so you're only asked once per run.
 
 > **Note:** only the toolkit's own menus and messages are translated. Output from native Windows tools invoked by the toolkit (`systeminfo`, `ipconfig`, `driverquery`, and similar) is shown in whatever language Windows itself produces it in.
 
@@ -104,14 +106,15 @@ Entering anything other than `1`-`4` just shows a warning and asks again — it 
 
 ## 🖥️ Requirements
 
-- Windows 10 or Windows 11 (needed for the console colors and UTF-8 code page)
+- Windows 10 or Windows 11 (needed for the console colors)
 - Administrator account
-- For the Arabic menu, a console font with Arabic glyphs (Windows Terminal handles this out of the box; the legacy `conhost` window may need a font change under console **Properties → Font**)
-- Optional: [winget](https://learn.microsoft.com/windows/package-manager/winget/) for bulk app updates
+- Optional: [winget](https://learn.microsoft.com/windows/package-manager/winget/) for bulk app updates and the internet speed test (it installs Ookla's Speedtest CLI on first use)
 
 ## ⚠️ Disclaimer
 
 Some tools make system-level changes, such as a network reset, a Windows Update reset, Safe Mode booting, or scheduling CHKDSK. Each one asks for confirmation first. Still, **create a restore point before making major changes**, and use this toolkit at your own risk. The author is not responsible for data loss or system issues.
+
+The **Show saved Wi-Fi passwords** tool prints stored network passwords in plain text to the console. Be mindful of who can see the screen (or a screen recording/share) when you use it.
 
 ## 🤝 Contributing
 
