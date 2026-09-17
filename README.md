@@ -26,7 +26,12 @@ No installation, no dependencies. Just download and double-click.
 ## 📋 Menu Overview
 
 ### System Monitor
-A full-screen, live-refreshing dashboard for CPU, RAM, disk activity, and network throughput, each shown as a color-coded bar (green/yellow/red by load). Updates about once a second; press any key to return to the main menu.
+A full-screen, live-refreshing dashboard, updating about once a second until you press a key:
+- CPU, RAM, and disk usage as color-coded bars (green/yellow/red by load), each with a rolling trend sparkline for CPU and RAM
+- Live network throughput (down/up, in Mbps)
+- A top-5-by-CPU process table (PID, name, live CPU%, memory)
+
+Since the toolkit is plain ASCII (no special console setup required), it's drawn with `#`/`-` bars and a density-character sparkline rather than Unicode block graphics — same information, plain-text rendering.
 
 ### 1. Admin Consoles
 | | | |
