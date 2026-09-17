@@ -814,7 +814,11 @@ if exist "%MONPS1%" del /f /q "%MONPS1%" >nul 2>&1
 >>"%MONFILE%" echo SAA6AG0AbQA6AHMAcwAnACkAIAArACAAJwAgACAAIAAgACAAJwAgACsAIAAkAGUAbgB2ADoAVABfAE0ATwBOAF8ARQBYAEkAVABIAEkATgBUACkAIAA5ADYAKQAgAC0ARgBvAHIAZQBnAHIAbwB1AG4AZABDAG8AbABvAHIAIABEAGEAcgBrAEcAcgBhAHkACgAgACAAIAAgAH0AIABjAGEAdABjAGgAIAB7AH0ACgAKACAAIAAgACAAUwB0AGEAcgB0AC0AUwBsAGUAZQBwACAALQBNAGkAbABsAGkAcwBlAGMAbwBuAGQAcwAgADEAMAAwADAACgB9AAoAWwBDAG8AbgBzAG8AbABlAF0AOgA6AFIAZQBhAGQASwBlAHkAKAAkAHQAcgB1AGUA
 >>"%MONFILE%" echo KQAgAHwAIABPAHUAdAAtAE4AdQBsAGwACgA=
 powershell -NoProfile -Command "[System.IO.File]::WriteAllText($env:MONPS1, [System.Text.Encoding]::Unicode.GetString([Convert]::FromBase64String(((Get-Content -Path $env:MONFILE -Raw) -replace '\s',''))))"
-start "" powershell -NoProfile -ExecutionPolicy Bypass -File "%MONPS1%"
+if defined WT_SESSION (
+    wt -w 0 split-pane -V -s 0.42 powershell -NoProfile -ExecutionPolicy Bypass -File "%MONPS1%"
+) else (
+    start "" powershell -NoProfile -ExecutionPolicy Bypass -File "%MONPS1%"
+)
 exit /b
 
 :CidrToMask
