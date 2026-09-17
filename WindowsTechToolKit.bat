@@ -567,6 +567,7 @@ goto power
 cls
 echo %C%======================================================================%N%
 echo %W%               WINDOWS TECHNICIAN TOOLKIT  PRO%N%
+echo %D%                    %T_POWEREDBY%%N%
 echo %C%======================================================================%N%
 echo %D%  %T_PC% %COMPUTERNAME%   %T_USER% %USERNAME%   %DATE% %TIME:~0,5%%N%
 echo %Y%  ^>^> %~1%N%
@@ -629,6 +630,7 @@ echo %W%                   WINDOWS TECHNICIAN TOOLKIT PRO%N%
 echo %C%                    ════════════════════════════%N%
 echo.
 echo %D%                       EN  ·  DE  ·  TR  ·  AR%N%
+echo %D%                     Powered by BASHAR SALMO%N%
 powershell -NoProfile -Command "Start-Sleep -Milliseconds 500"
 exit /b
 
@@ -681,6 +683,7 @@ set "T_LAUNCHED=Launched."
 set "T_PC=PC:"
 set "T_USER=User:"
 set "T_REQADMIN=Requesting administrator rights..."
+set "T_POWEREDBY=Powered by BASHAR SALMO"
 set "T_H_MAIN=MAIN MENU"
 set "T_H_CONSOLES=ADMIN CONSOLES"
 set "T_H_SYSINFO=SYSTEM INFO AND REPORTS"
@@ -836,6 +839,7 @@ set "T_LAUNCHED=Gestartet."
 set "T_PC=PC:"
 set "T_USER=Benutzer:"
 set "T_REQADMIN=Administratorrechte werden angefordert..."
+set "T_POWEREDBY=Bereitgestellt von BASHAR SALMO"
 set "T_H_MAIN=HAUPTMENUE"
 set "T_H_CONSOLES=ADMIN-KONSOLEN"
 set "T_H_SYSINFO=SYSTEMINFO UND BERICHTE"
@@ -991,6 +995,7 @@ set "T_LAUNCHED=Baslatildi."
 set "T_PC=PC:"
 set "T_USER=Kullanici:"
 set "T_REQADMIN=Yonetici izinleri isteniyor..."
+set "T_POWEREDBY=BASHAR SALMO tarafindan gelistirildi"
 set "T_H_MAIN=ANA MENU"
 set "T_H_CONSOLES=YONETIM KONSOLLARI"
 set "T_H_SYSINFO=SISTEM BILGISI VE RAPORLAR"
@@ -1146,6 +1151,7 @@ set "T_LAUNCHED=تم التشغيل."
 set "T_PC=الجهاز:"
 set "T_USER=المستخدم:"
 set "T_REQADMIN=جارٍ طلب صلاحيات المسؤول..."
+set "T_POWEREDBY=بدعم من BASHAR SALMO"
 set "T_H_MAIN=القائمة الرئيسية"
 set "T_H_CONSOLES=أدوات الإدارة"
 set "T_H_SYSINFO=معلومات النظام والتقارير"
