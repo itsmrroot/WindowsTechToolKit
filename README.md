@@ -11,6 +11,17 @@ No installation, no dependencies. Just download and double-click.
 
 ---
 
+## 🔓 Two editions
+
+| File | Elevation | What's in it |
+|---|---|---|
+| **`WindowsTechToolKit.bat`** | Auto-elevates to Administrator | Everything — including repair tools, driver management, network reset, static IP configuration, Safe Mode toggling |
+| **`WindowsTechToolKit-NoAdmin.bat`** | Never asks for admin | Only tools that genuinely work for a standard Windows user |
+
+The No-Admin edition isn't a trimmed-down demo — it's a real, separately maintained tool built by going through every single menu item and checking whether Windows actually requires elevation for it (some of this is non-obvious: `shutdown /r` and `netstat` don't need admin despite feeling like they should, while `ipconfig /release`, `netsh wlan show profile key=clear`, and anything touching SFC/DISM/CHKDSK/BCDEdit absolutely do). Repair tools, driver export/import, network reset, static IP configuration, and Safe Mode toggling are left out entirely because they genuinely require administrator rights on Windows — there's no way around that, so use the full edition for those. Everything included in the No-Admin edition — System Monitor, System Info & Reports, most of Network Tools, and the parts of Admin Consoles/Cleanup/Power that don't need elevation — is fully functional without ever prompting for admin.
+
+---
+
 ## ✨ Features
 
 - **Multi-language menus.** On launch, pick English, Deutsch, or Türkçe; every menu, prompt, and status message is shown in that language for the rest of the session.
@@ -110,8 +121,8 @@ Entering anything other than `1`-`3` just shows a warning and asks again — it 
 
 ## 🚀 Getting Started
 
-1. Download `WindowsTechToolkit.bat` from this repository, either through **Code → Download ZIP** or by opening the file and clicking **Download raw file**.
-2. Double-click the file, choose your language, and approve the administrator prompt.
+1. Download `WindowsTechToolkit.bat` (or `WindowsTechToolKit-NoAdmin.bat` if you don't have admin rights on the PC) from this repository, either through **Code → Download ZIP** or by opening the file and clicking **Download raw file**.
+2. Double-click the file, choose your language, and approve the administrator prompt (skip that last part with the No-Admin edition — it never asks).
 3. Type a menu number and press **Enter**.
 
 > **SmartScreen warning?** Windows flags scripts downloaded from the internet. Click **More info → Run anyway**, or right-click the file, choose **Properties**, and tick **Unblock**.
@@ -119,7 +130,7 @@ Entering anything other than `1`-`3` just shows a warning and asks again — it 
 ## 🖥️ Requirements
 
 - Windows 10 or Windows 11 (needed for the console colors)
-- Administrator account
+- Administrator account for `WindowsTechToolKit.bat`; any standard account works for `WindowsTechToolKit-NoAdmin.bat`
 - Optional: [winget](https://learn.microsoft.com/windows/package-manager/winget/) for bulk app updates and the internet speed test (it installs Ookla's Speedtest CLI on first use)
 
 ## ⚠️ Disclaimer
