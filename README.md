@@ -37,7 +37,7 @@ The No-Admin edition isn't a trimmed-down demo — it's a real, separately maint
 ## 📋 Menu Overview
 
 ### System Monitor
-Launches automatically in its own window as soon as you pick a language — it's not a menu option anymore, it just runs the whole time you're using the toolkit. It's a real, independent console window, so you can move it, resize it, minimize it, or close it early like any other window; it starts pinned to the right half of your screen (best effort — this needs a couple of Windows-only APIs that simply aren't there on other platforms, so if positioning ever fails for some reason, the window still opens normally, just wherever Windows puts it by default). Closing the main toolkit closes the monitor window too.
+Launches automatically in its own window as soon as you pick a language — it's not a menu option anymore, it just runs the whole time you're using the toolkit. It's a real, independent console window, so you can move it or resize it like any other window; it starts pinned to the right half of your screen and stays **always on top**, so picking a menu option or bringing the main window to focus can't cover it up or push it out of view (best effort — this needs a couple of Windows-only APIs that simply aren't there on other platforms, so if that fails for some reason, the window still opens normally, just without the pinning). Closing the main toolkit closes the monitor window too.
 
 It updates about once a second:
 - CPU, RAM, and disk usage as color-coded bars (green/yellow/red by load); CPU and RAM also get a rolling trend sparkline. Every local drive (C:, D:, G:, ...) gets its own bar, not just the system drive
