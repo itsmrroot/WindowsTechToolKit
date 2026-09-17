@@ -1492,6 +1492,3 @@ echo %G% %T_GOODBYE%%N%
 timeout /t 1 >nul
 endlocal
 exit /b
-
-
-
