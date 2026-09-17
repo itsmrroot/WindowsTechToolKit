@@ -58,6 +58,7 @@ No installation, no dependencies. Just download and double-click.
 - Windows Memory Diagnostic
 - **Export drivers** to a timestamped folder in `TechToolkit_Reports` (`DISM /Export-Driver`) — handy before a clean reinstall
 - **Import drivers from a folder** and install them for this PC's hardware (`pnputil /add-driver ... /install`)
+- **Refresh all drivers** — exports and immediately reinstalls every driver currently on the PC in one step, a quick self-contained fix for a flaky/corrupted driver with no external media needed
 
 ### 4. Network Tools
 - **One-click diagnosis** that checks your router, the internet, and DNS

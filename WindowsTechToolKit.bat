@@ -250,6 +250,7 @@ echo  %Y%[10]%N% %T_R10%
 echo  %Y%[11]%N% %T_R11%
 echo  %Y%[12]%N% %T_R12%         %D%%T_R12D%%N%
 echo  %Y%[13]%N% %T_R13%      %D%%T_R13D%%N%
+echo  %Y%[14]%N% %T_R14%           %D%%T_R14D%%N%
 echo.
 echo  %R%[0]%N%  %T_BACK%
 echo.
@@ -269,6 +270,7 @@ if "%opt%"=="10" goto repMemDiag
 if "%opt%"=="11" start "" ms-settings:windowsupdate & goto repair
 if "%opt%"=="12" goto repDriverExport
 if "%opt%"=="13" goto repDriverImport
+if "%opt%"=="14" goto repDriverRefresh
 call :invalid
 goto repair
 
@@ -380,6 +382,23 @@ echo %C% %T_R_DRVIMPORTING%%N%
 pnputil /add-driver "%SRC%\*.inf" /subdirs /install
 call :log "Drivers imported from %SRC%"
 echo %G% %T_R_DRVIMPORTDONE%%N%
+pause
+goto repair
+
+:repDriverRefresh
+call :confirm "%T_R_DRVREFRESHCONFIRM%" || goto repair
+call :stamp
+set "DEST=%TEMP%\TechToolkit_DriverRefresh_%STAMP%"
+md "%DEST%" >nul 2>&1
+call :Spin T_R_DRVEXPORTING
+echo %C% %T_R_DRVEXPORTING%%N%
+DISM /Online /Export-Driver /Destination:"%DEST%"
+call :Spin T_R_DRVIMPORTING
+echo %C% %T_R_DRVIMPORTING%%N%
+pnputil /add-driver "%DEST%\*.inf" /subdirs /install
+call :log "Driver refresh: exported and reinstalled via %DEST%"
+rd /s /q "%DEST%" >nul 2>&1
+echo %G% %T_R_DRVREFRESHDONE%%N%
 pause
 goto repair
 
@@ -811,6 +830,10 @@ set "T_R_DRVPATHNOTFOUND=That folder was not found."
 set "T_R_DRVIMPORTCONFIRM=This installs every driver found in that folder for matching hardware on this PC. Continue?"
 set "T_R_DRVIMPORTING=Importing and installing drivers, please wait..."
 set "T_R_DRVIMPORTDONE=Drivers imported. Check Device Manager if anything still needs a manual install."
+set "T_R14=Refresh all drivers"
+set "T_R14D=export and reinstall in one step"
+set "T_R_DRVREFRESHCONFIRM=This re-exports and reinstalls every driver currently on this PC. It can take a few minutes and will not remove any hardware. Continue?"
+set "T_R_DRVREFRESHDONE=Drivers refreshed. Restart the PC if any device still looks off."
 set "T_R11=Open Windows Update"
 set "T_R_STEP1=Step 1 of 2: DISM..."
 set "T_R_STEP2=Step 2 of 2: SFC..."
@@ -988,6 +1011,10 @@ set "T_R_DRVPATHNOTFOUND=Dieser Ordner wurde nicht gefunden."
 set "T_R_DRVIMPORTCONFIRM=Dies installiert jeden in diesem Ordner gefundenen Treiber fuer passende Hardware auf diesem PC. Fortfahren?"
 set "T_R_DRVIMPORTING=Treiber werden importiert und installiert, bitte warten..."
 set "T_R_DRVIMPORTDONE=Treiber importiert. Pruefen Sie den Geraete-Manager, falls noch etwas manuell installiert werden muss."
+set "T_R14=Alle Treiber auffrischen"
+set "T_R14D=Export und Neuinstallation in einem Schritt"
+set "T_R_DRVREFRESHCONFIRM=Dies exportiert und installiert jeden derzeit auf diesem PC vorhandenen Treiber neu. Es kann einige Minuten dauern und entfernt keine Hardware. Fortfahren?"
+set "T_R_DRVREFRESHDONE=Treiber aufgefrischt. Starten Sie den PC neu, falls ein Geraet noch immer nicht richtig funktioniert."
 set "T_R11=Windows Update oeffnen"
 set "T_R_STEP1=Schritt 1 von 2: DISM..."
 set "T_R_STEP2=Schritt 2 von 2: SFC..."
@@ -1165,6 +1192,10 @@ set "T_R_DRVPATHNOTFOUND=Bu klasor bulunamadi."
 set "T_R_DRVIMPORTCONFIRM=Bu islem, o klasorde bulunan ve bu PC'deki uyumlu donanima ait tum suruculeri yukler. Devam edilsin mi?"
 set "T_R_DRVIMPORTING=Suruculer ice aktariliyor ve yukleniyor, lutfen bekleyin..."
 set "T_R_DRVIMPORTDONE=Suruculer ice aktarildi. Hala manuel yukleme gerektiren bir sey varsa Aygit Yoneticisi'ni kontrol edin."
+set "T_R14=Tum suruculeri yenile"
+set "T_R14D=tek adimda disa aktar ve yeniden yukle"
+set "T_R_DRVREFRESHCONFIRM=Bu islem, bu PC'de su anda bulunan her suruculeru yeniden disa aktarir ve yeniden yukler. Birkac dakika surebilir ve hicbir donanimi kaldirmaz. Devam edilsin mi?"
+set "T_R_DRVREFRESHDONE=Suruculer yenilendi. Herhangi bir cihaz hala sorunlu gorunuyorsa PC'yi yeniden baslatin."
 set "T_R11=Windows Update'i ac"
 set "T_R_STEP1=Adim 1/2: DISM..."
 set "T_R_STEP2=Adim 2/2: SFC..."
