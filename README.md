@@ -77,6 +77,7 @@ Since the toolkit is plain ASCII (no special console setup required), it's drawn
 - Update all apps with `winget`
 - Restart Windows Explorer
 - Windows Memory Diagnostic
+- Open Windows Update settings
 - **Export drivers**, with a choice of destination: the default `TechToolkit_Reports` folder, a custom path you type, or the same folder the script itself is running from (handy when running off a USB stick, so the export travels with it) — handy before a clean reinstall
 - **Import drivers from a folder** and install them for this PC's hardware (`pnputil /add-driver ... /install`)
 - **Refresh all drivers** — exports and immediately reinstalls every driver currently on the PC in one step, a quick self-contained fix for a flaky/corrupted driver with no external media needed
@@ -123,7 +124,7 @@ Entering anything other than `1`-`3` just shows a warning and asks again — it 
 
 ## 🚀 Getting Started
 
-1. Download `WindowsTechToolkit.bat` (or `WindowsTechToolKit-NoAdmin.bat` if you don't have admin rights on the PC) from this repository, either through **Code → Download ZIP** or by opening the file and clicking **Download raw file**.
+1. Download `WindowsTechToolKit.bat` (or `WindowsTechToolKit-NoAdmin.bat` if you don't have admin rights on the PC) from this repository, either through **Code → Download ZIP** or by opening the file and clicking **Download raw file**.
 2. Double-click the file, choose your language, and approve the administrator prompt (skip that last part with the No-Admin edition — it never asks).
 3. Type a menu number and press **Enter**.
 
