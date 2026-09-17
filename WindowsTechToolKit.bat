@@ -248,6 +248,8 @@ echo  %Y%[8]%N%  %T_R8%             %D%%T_R8D%%N%
 echo  %Y%[9]%N%  %T_R9%
 echo  %Y%[10]%N% %T_R10%
 echo  %Y%[11]%N% %T_R11%
+echo  %Y%[12]%N% %T_R12%         %D%%T_R12D%%N%
+echo  %Y%[13]%N% %T_R13%      %D%%T_R13D%%N%
 echo.
 echo  %R%[0]%N%  %T_BACK%
 echo.
@@ -265,6 +267,8 @@ if "%opt%"=="8" goto repWinget
 if "%opt%"=="9" goto repExplorer
 if "%opt%"=="10" goto repMemDiag
 if "%opt%"=="11" start "" ms-settings:windowsupdate & goto repair
+if "%opt%"=="12" goto repDriverExport
+if "%opt%"=="13" goto repDriverImport
 call :invalid
 goto repair
 
@@ -350,6 +354,33 @@ goto repair
 
 :repMemDiag
 if exist "%windir%\System32\mdsched.exe" (start "" "%windir%\System32\mdsched.exe") else (echo %Y% %T_R_MEMDIAGMISSING%%N% & pause)
+goto repair
+
+:repDriverExport
+call :stamp
+set "DEST=%RPT%\DriverExport_%STAMP%"
+md "%DEST%" >nul 2>&1
+call :Spin T_R_DRVEXPORTING
+echo %C% %T_R_DRVEXPORTING%%N%
+DISM /Online /Export-Driver /Destination:"%DEST%"
+call :log "Drivers exported to %DEST%"
+echo %G% %T_R_DRVEXPORTDONE% %DEST%%N%
+start "" explorer "%DEST%"
+pause
+goto repair
+
+:repDriverImport
+set "SRC="
+set /p "SRC= %T_R_DRVIMPORTPROMPT% "
+if not defined SRC goto repair
+if not exist "%SRC%" (echo %R% %T_R_DRVPATHNOTFOUND%%N% & pause & goto repair)
+call :confirm "%T_R_DRVIMPORTCONFIRM%" || goto repair
+call :Spin T_R_DRVIMPORTING
+echo %C% %T_R_DRVIMPORTING%%N%
+pnputil /add-driver "%SRC%\*.inf" /subdirs /install
+call :log "Drivers imported from %SRC%"
+echo %G% %T_R_DRVIMPORTDONE%%N%
+pause
 goto repair
 
 :: ============================================================
@@ -769,6 +800,17 @@ set "T_R8D=winget"
 set "T_R9=Restart Windows Explorer"
 set "T_R10=Memory diagnostic"
 set "T_R_MEMDIAGMISSING=Windows Memory Diagnostic - mdsched.exe - was not found on this system."
+set "T_R12=Export drivers"
+set "T_R12D=DISM, back up to a folder"
+set "T_R13=Import drivers from a folder"
+set "T_R13D=pnputil, install for this PC"
+set "T_R_DRVEXPORTING=Exporting drivers, please wait..."
+set "T_R_DRVEXPORTDONE=Drivers exported to:"
+set "T_R_DRVIMPORTPROMPT=Folder with exported drivers:"
+set "T_R_DRVPATHNOTFOUND=That folder was not found."
+set "T_R_DRVIMPORTCONFIRM=This installs every driver found in that folder for matching hardware on this PC. Continue?"
+set "T_R_DRVIMPORTING=Importing and installing drivers, please wait..."
+set "T_R_DRVIMPORTDONE=Drivers imported. Check Device Manager if anything still needs a manual install."
 set "T_R11=Open Windows Update"
 set "T_R_STEP1=Step 1 of 2: DISM..."
 set "T_R_STEP2=Step 2 of 2: SFC..."
@@ -935,6 +977,17 @@ set "T_R8D=winget"
 set "T_R9=Windows-Explorer neu starten"
 set "T_R10=Speicherdiagnose"
 set "T_R_MEMDIAGMISSING=Windows-Speicherdiagnose - mdsched.exe - wurde auf diesem System nicht gefunden."
+set "T_R12=Treiber exportieren"
+set "T_R12D=DISM, Sicherung in einen Ordner"
+set "T_R13=Treiber aus einem Ordner importieren"
+set "T_R13D=pnputil, installiert fuer diesen PC"
+set "T_R_DRVEXPORTING=Treiber werden exportiert, bitte warten..."
+set "T_R_DRVEXPORTDONE=Treiber exportiert nach:"
+set "T_R_DRVIMPORTPROMPT=Ordner mit den exportierten Treibern:"
+set "T_R_DRVPATHNOTFOUND=Dieser Ordner wurde nicht gefunden."
+set "T_R_DRVIMPORTCONFIRM=Dies installiert jeden in diesem Ordner gefundenen Treiber fuer passende Hardware auf diesem PC. Fortfahren?"
+set "T_R_DRVIMPORTING=Treiber werden importiert und installiert, bitte warten..."
+set "T_R_DRVIMPORTDONE=Treiber importiert. Pruefen Sie den Geraete-Manager, falls noch etwas manuell installiert werden muss."
 set "T_R11=Windows Update oeffnen"
 set "T_R_STEP1=Schritt 1 von 2: DISM..."
 set "T_R_STEP2=Schritt 2 von 2: SFC..."
@@ -1101,6 +1154,17 @@ set "T_R8D=winget"
 set "T_R9=Windows Gezgini'ni yeniden baslat"
 set "T_R10=Bellek tanilamasi"
 set "T_R_MEMDIAGMISSING=Windows Bellek Tanilama araci - mdsched.exe - bu sistemde bulunamadi."
+set "T_R12=Suruculeri disa aktar"
+set "T_R12D=DISM, bir klasore yedekle"
+set "T_R13=Bir klasorden suruculeri ice aktar"
+set "T_R13D=pnputil, bu PC icin yukler"
+set "T_R_DRVEXPORTING=Suruculer disa aktariliyor, lutfen bekleyin..."
+set "T_R_DRVEXPORTDONE=Suruculer su konuma aktarildi:"
+set "T_R_DRVIMPORTPROMPT=Disa aktarilan suruculerin bulundugu klasor:"
+set "T_R_DRVPATHNOTFOUND=Bu klasor bulunamadi."
+set "T_R_DRVIMPORTCONFIRM=Bu islem, o klasorde bulunan ve bu PC'deki uyumlu donanima ait tum suruculeri yukler. Devam edilsin mi?"
+set "T_R_DRVIMPORTING=Suruculer ice aktariliyor ve yukleniyor, lutfen bekleyin..."
+set "T_R_DRVIMPORTDONE=Suruculer ice aktarildi. Hala manuel yukleme gerektiren bir sey varsa Aygit Yoneticisi'ni kontrol edin."
 set "T_R11=Windows Update'i ac"
 set "T_R_STEP1=Adim 1/2: DISM..."
 set "T_R_STEP2=Adim 2/2: SFC..."

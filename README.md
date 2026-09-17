@@ -56,6 +56,8 @@ No installation, no dependencies. Just download and double-click.
 - Update all apps with `winget`
 - Restart Windows Explorer
 - Windows Memory Diagnostic
+- **Export drivers** to a timestamped folder in `TechToolkit_Reports` (`DISM /Export-Driver`) — handy before a clean reinstall
+- **Import drivers from a folder** and install them for this PC's hardware (`pnputil /add-driver ... /install`)
 
 ### 4. Network Tools
 - **One-click diagnosis** that checks your router, the internet, and DNS
