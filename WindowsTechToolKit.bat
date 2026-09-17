@@ -56,6 +56,7 @@ echo  %Y%[4]%N%  %T_M4%         %D%%T_M4D%%N%
 echo  %Y%[5]%N%  %T_M5%               %D%%T_M5D%%N%
 echo  %Y%[6]%N%  %T_M6%          %D%%T_M6D%%N%
 echo  %Y%[7]%N%  %T_M7%
+echo  %Y%[8]%N%  %T_M8%          %D%%T_M8D%%N%
 echo.
 echo  %R%[0]%N%  %T_EXIT%
 echo.
@@ -68,8 +69,14 @@ if "%opt%"=="4" call :Flash & goto network
 if "%opt%"=="5" call :Flash & goto cleanup
 if "%opt%"=="6" call :Flash & goto power
 if "%opt%"=="7" start "" explorer "%RPT%" & goto main
+if "%opt%"=="8" call :Flash & goto sysMonitor
 if "%opt%"=="0" goto quit
 call :invalid
+goto main
+
+:sysMonitor
+cls
+powershell -NoProfile -Command "function Bar($p){if($p -lt 0){$p=0}; if($p -gt 100){$p=100}; $f=[math]::Round($p/5); return ('#'*$f)+('-'*(20-$f))}; function Col($p){if($p -ge 85){'Red'} elseif($p -ge 60){'Yellow'} else {'Green'}}; Clear-Host; Write-Host $env:T_MON_TITLE -ForegroundColor Cyan; Write-Host ''; while (-not [Console]::KeyAvailable) { $cpuObj=Get-CimInstance Win32_Processor -ErrorAction SilentlyContinue | Measure-Object -Property LoadPercentage -Average; $cpu=0; if($cpuObj -and $cpuObj.Average){$cpu=[math]::Round($cpuObj.Average)}; $osi=Get-CimInstance Win32_OperatingSystem; $ram=[math]::Round((($osi.TotalVisibleMemorySize-$osi.FreePhysicalMemory)/$osi.TotalVisibleMemorySize)*100); $dc=Get-Counter '\PhysicalDisk(_Total)\%% Disk Time' -ErrorAction SilentlyContinue; $disk=0; if($dc){$disk=[math]::Round($dc.CounterSamples[0].CookedValue)}; if($disk -gt 100){$disk=100}; $nc=Get-Counter '\Network Interface(*)\Bytes Total/sec' -ErrorAction SilentlyContinue; $netB=0; if($nc){foreach($s in $nc.CounterSamples){if($s.InstanceName -notmatch 'loopback|isatap'){$netB+=$s.CookedValue}}}; $netKB=[math]::Round($netB/1024,1); [Console]::SetCursorPosition(0,2); Write-Host ('  CPU      ['+(Bar $cpu)+']  {0,3}%%   ' -f $cpu) -ForegroundColor (Col $cpu); Write-Host ('  RAM      ['+(Bar $ram)+']  {0,3}%%   ' -f $ram) -ForegroundColor (Col $ram); Write-Host ('  DISK     ['+(Bar $disk)+']  {0,3}%%   ' -f $disk) -ForegroundColor (Col $disk); Write-Host ('  NETWORK   '+$netKB+' KB/s'+(' '*20)) -ForegroundColor Cyan; Write-Host ''; Write-Host $env:T_MON_EXITHINT -ForegroundColor DarkGray; Start-Sleep -Milliseconds 1000 }; [Console]::ReadKey($true) | Out-Null"
 goto main
 
 :: ============================================================
@@ -359,8 +366,28 @@ if exist "%windir%\System32\mdsched.exe" (start "" "%windir%\System32\mdsched.ex
 goto repair
 
 :repDriverExport
+call :header "%T_H_REPAIR%"
+echo  %Y%[1]%N%  %T_R_DRVDESTDEFAULT%
+echo  %Y%[2]%N%  %T_R_DRVDESTCUSTOM%
+echo  %Y%[3]%N%  %T_R_DRVDESTSCRIPT%
+echo.
+echo  %R%[0]%N%  %T_BACK%
+echo.
+set "dsub="
+set /p "dsub=%G% %T_SELECT% %N%"
 call :stamp
-set "DEST=%RPT%\DriverExport_%STAMP%"
+if "%dsub%"=="1" set "DEST=%RPT%\DriverExport_%STAMP%" & goto repDriverExportRun
+if "%dsub%"=="2" goto repDriverExportCustom
+if "%dsub%"=="3" set "DEST=%~dp0DriverExport_%STAMP%" & goto repDriverExportRun
+goto repair
+
+:repDriverExportCustom
+set "CUSTPATH="
+set /p "CUSTPATH= %T_R_DRVDESTPROMPT% "
+if not defined CUSTPATH goto repair
+set "DEST=%CUSTPATH%\DriverExport_%STAMP%"
+
+:repDriverExportRun
 md "%DEST%" >nul 2>&1
 call :Spin T_R_DRVEXPORTING
 echo %C% %T_R_DRVEXPORTING%%N%
@@ -418,6 +445,7 @@ echo  %Y%[10]%N% %T_N10%
 echo  %Y%[11]%N% %T_N11%          %D%%T_N11D%%N%
 echo  %Y%[12]%N% %T_N12%
 echo  %Y%[13]%N% %T_N13%          %D%%T_N13D%%N%
+echo  %Y%[14]%N% %T_N14%           %D%%T_N14D%%N%
 echo.
 echo  %R%[0]%N%  %T_BACK%
 echo.
@@ -437,6 +465,7 @@ if "%opt%"=="10" start "" ncpa.cpl & goto network
 if "%opt%"=="11" goto netReset
 if "%opt%"=="12" goto netWifiPass
 if "%opt%"=="13" goto netSpeed
+if "%opt%"=="14" goto netIPConfig
 call :invalid
 goto network
 
@@ -505,21 +534,11 @@ goto network
 call :header "%T_H_NETWORK%"
 echo %C% %T_N_WIFIGATHERING%%N%
 echo.
-setlocal EnableDelayedExpansion
-for /f "tokens=1,* delims=:" %%a in ('netsh wlan show profiles ^| findstr /i "All User Profile"') do (
-    set "RAWNAME=%%b"
-    for /f "tokens=* delims=: " %%z in ("!RAWNAME!") do set "PNAME=%%z"
-    set "PASS="
-    for /f "tokens=1,* delims=:" %%k in ('netsh wlan show profile name="!PNAME!" key=clear ^| findstr /i "Key Content"') do (
-        for /f "tokens=* delims=: " %%y in ("%%l") do set "PASS=%%y"
-    )
-    if defined PASS (
-        echo  %W%!PNAME!%N%  %D%-%N%  %G%!PASS!%N%
-    ) else (
-        echo  %W%!PNAME!%N%  %D%-%N%  %D%%T_N_WIFINOPASS%%N%
-    )
-)
-endlocal
+set "WIFIDIR=%TEMP%\TechToolkit_WifiExport_%RANDOM%"
+md "%WIFIDIR%" >nul 2>&1
+netsh wlan export profile key=clear folder="%WIFIDIR%" >nul 2>&1
+powershell -NoProfile -Command "$nopass=$env:T_N_WIFINOPASS; Get-ChildItem -Path $env:WIFIDIR -Filter *.xml -ErrorAction SilentlyContinue | ForEach-Object { [xml]$x = Get-Content -Path $_.FullName; $n = $x.WLANProfile.name; $k = $x.WLANProfile.MSM.security.sharedKey.keyMaterial; if ([string]::IsNullOrEmpty($k)) { $k = $nopass }; Write-Host $n -NoNewline -ForegroundColor White; Write-Host '   -   ' -NoNewline -ForegroundColor DarkGray; Write-Host $k -ForegroundColor Green }"
+rd /s /q "%WIFIDIR%" >nul 2>&1
 echo.
 pause
 goto network
@@ -536,6 +555,55 @@ if errorlevel 1 (
 )
 call :Spin T_N_SPEEDRUNNING
 speedtest --accept-license --accept-gdpr
+pause
+goto network
+
+:netIPConfig
+call :header "%T_H_NETWORK%"
+netsh interface show interface
+echo.
+set "ADP="
+set /p "ADP= %T_N_ADAPTERPROMPT% "
+if not defined ADP goto network
+echo.
+echo  %Y%[1]%N%  %T_N_DHCP%
+echo  %Y%[2]%N%  %T_N_STATIC%
+echo.
+echo  %R%[0]%N%  %T_BACK%
+echo.
+set "sub="
+set /p "sub=%G% %T_SELECT% %N%"
+if "%sub%"=="1" goto netIPDhcpApply
+if "%sub%"=="2" goto netIPStaticApply
+goto network
+
+:netIPDhcpApply
+call :confirm "%T_N_DHCPCONFIRM%" || goto network
+netsh interface ip set address name="%ADP%" dhcp
+netsh interface ip set dns name="%ADP%" dhcp
+call :log "Set %ADP% to DHCP"
+echo %G% %T_N_IPDONE%%N%
+pause
+goto network
+
+:netIPStaticApply
+set "SIP="
+set /p "SIP= %T_N_IPPROMPT% "
+if not defined SIP goto network
+set "SMASKIN="
+set /p "SMASKIN= %T_N_MASKPROMPT% "
+if not defined SMASKIN goto network
+set "SGW="
+set /p "SGW= %T_N_GWPROMPT% "
+if not defined SGW goto network
+set "MASK=%SMASKIN%"
+if "%MASK:~0,1%"=="/" set "MASK=%MASK:~1%"
+echo %MASK%| findstr /r "^[0-9][0-9]*$" >nul
+if not errorlevel 1 call :CidrToMask %MASK%
+call :confirm "%T_N_STATICCONFIRM% %SIP%" || goto network
+netsh interface ip set address name="%ADP%" static %SIP% %MASK% %SGW%
+call :log "Set %ADP% to static %SIP% %MASK% %SGW%"
+echo %G% %T_N_IPDONE%%N%
 pause
 goto network
 
@@ -688,6 +756,42 @@ exit /b
 >>"%LOG%" echo [%DATE% %TIME:~0,8%] %~1
 exit /b
 
+:CidrToMask
+if "%~1"=="0" set "MASK=0.0.0.0" & exit /b
+if "%~1"=="1" set "MASK=128.0.0.0" & exit /b
+if "%~1"=="2" set "MASK=192.0.0.0" & exit /b
+if "%~1"=="3" set "MASK=224.0.0.0" & exit /b
+if "%~1"=="4" set "MASK=240.0.0.0" & exit /b
+if "%~1"=="5" set "MASK=248.0.0.0" & exit /b
+if "%~1"=="6" set "MASK=252.0.0.0" & exit /b
+if "%~1"=="7" set "MASK=254.0.0.0" & exit /b
+if "%~1"=="8" set "MASK=255.0.0.0" & exit /b
+if "%~1"=="9" set "MASK=255.128.0.0" & exit /b
+if "%~1"=="10" set "MASK=255.192.0.0" & exit /b
+if "%~1"=="11" set "MASK=255.224.0.0" & exit /b
+if "%~1"=="12" set "MASK=255.240.0.0" & exit /b
+if "%~1"=="13" set "MASK=255.248.0.0" & exit /b
+if "%~1"=="14" set "MASK=255.252.0.0" & exit /b
+if "%~1"=="15" set "MASK=255.254.0.0" & exit /b
+if "%~1"=="16" set "MASK=255.255.0.0" & exit /b
+if "%~1"=="17" set "MASK=255.255.128.0" & exit /b
+if "%~1"=="18" set "MASK=255.255.192.0" & exit /b
+if "%~1"=="19" set "MASK=255.255.224.0" & exit /b
+if "%~1"=="20" set "MASK=255.255.240.0" & exit /b
+if "%~1"=="21" set "MASK=255.255.248.0" & exit /b
+if "%~1"=="22" set "MASK=255.255.252.0" & exit /b
+if "%~1"=="23" set "MASK=255.255.254.0" & exit /b
+if "%~1"=="24" set "MASK=255.255.255.0" & exit /b
+if "%~1"=="25" set "MASK=255.255.255.128" & exit /b
+if "%~1"=="26" set "MASK=255.255.255.192" & exit /b
+if "%~1"=="27" set "MASK=255.255.255.224" & exit /b
+if "%~1"=="28" set "MASK=255.255.255.240" & exit /b
+if "%~1"=="29" set "MASK=255.255.255.248" & exit /b
+if "%~1"=="30" set "MASK=255.255.255.252" & exit /b
+if "%~1"=="31" set "MASK=255.255.255.254" & exit /b
+if "%~1"=="32" set "MASK=255.255.255.255" & exit /b
+exit /b
+
 :: ============================================================
 ::  ANIMATIONS
 :: ============================================================
@@ -764,6 +868,10 @@ set "T_M5D=Temp files, Disk Cleanup, component store"
 set "T_M6=Power and Boot"
 set "T_M6D=BIOS, Advanced Startup, Safe Mode"
 set "T_M7=Open Reports Folder"
+set "T_M8=System Monitor"
+set "T_M8D=Live CPU, RAM, disk, network"
+set "T_MON_TITLE=LIVE SYSTEM MONITOR"
+set "T_MON_EXITHINT=Press any key to exit..."
 set "T_C1=CMD"
 set "T_C2=PowerShell"
 set "T_C3=Registry Editor"
@@ -825,6 +933,10 @@ set "T_R13=Import drivers from a folder"
 set "T_R13D=pnputil, install for this PC"
 set "T_R_DRVEXPORTING=Exporting drivers, please wait..."
 set "T_R_DRVEXPORTDONE=Drivers exported to:"
+set "T_R_DRVDESTDEFAULT=Default location - TechToolkit_Reports"
+set "T_R_DRVDESTCUSTOM=Choose a custom folder"
+set "T_R_DRVDESTSCRIPT=Same folder as this script - handy when running from USB"
+set "T_R_DRVDESTPROMPT=Destination folder:"
 set "T_R_DRVIMPORTPROMPT=Folder with exported drivers:"
 set "T_R_DRVPATHNOTFOUND=That folder was not found."
 set "T_R_DRVIMPORTCONFIRM=This installs every driver found in that folder for matching hardware on this PC. Continue?"
@@ -866,6 +978,17 @@ set "T_N_SPEEDCONFIRM=This installs Ookla's official Speedtest CLI, about 15 MB,
 set "T_N_SPEEDINSTALLING=Installing Speedtest CLI, one-time via winget..."
 set "T_N_SPEEDRETRY=Installed. Please close and reopen this toolkit, then run the speed test again."
 set "T_N_SPEEDRUNNING=Running speed test..."
+set "T_N14=Configure IP address"
+set "T_N14D=DHCP or manual static IP"
+set "T_N_ADAPTERPROMPT=Adapter name, exactly as shown above:"
+set "T_N_DHCP=Automatic, DHCP"
+set "T_N_STATIC=Manual, static IP"
+set "T_N_DHCPCONFIRM=This switches the adapter back to automatic addressing. Continue?"
+set "T_N_IPDONE=Done."
+set "T_N_IPPROMPT=IP address:"
+set "T_N_MASKPROMPT=Subnet mask, e.g. 255.255.255.0, or a prefix like /24:"
+set "T_N_GWPROMPT=Default gateway:"
+set "T_N_STATICCONFIRM=This sets a static IP address on that adapter:"
 set "T_N_ROUTEROK=Router reachable -"
 set "T_N_ROUTERFAIL=Router not responding -"
 set "T_N_NOGATEWAY=No default gateway - check cable or Wi-Fi"
@@ -945,6 +1068,10 @@ set "T_M5D=Temp-Dateien, Datentraegerbereinigung, Komponentenspeicher"
 set "T_M6=Energie und Start"
 set "T_M6D=BIOS, Erweiterter Start, Abgesicherter Modus"
 set "T_M7=Berichtsordner oeffnen"
+set "T_M8=Systemmonitor"
+set "T_M8D=Live CPU, RAM, Datentraeger, Netzwerk"
+set "T_MON_TITLE=LIVE-SYSTEMMONITOR"
+set "T_MON_EXITHINT=Beliebige Taste druecken zum Beenden..."
 set "T_C1=CMD"
 set "T_C2=PowerShell"
 set "T_C3=Registrierungs-Editor"
@@ -1006,6 +1133,10 @@ set "T_R13=Treiber aus einem Ordner importieren"
 set "T_R13D=pnputil, installiert fuer diesen PC"
 set "T_R_DRVEXPORTING=Treiber werden exportiert, bitte warten..."
 set "T_R_DRVEXPORTDONE=Treiber exportiert nach:"
+set "T_R_DRVDESTDEFAULT=Standardordner - TechToolkit_Reports"
+set "T_R_DRVDESTCUSTOM=Eigenen Ordner waehlen"
+set "T_R_DRVDESTSCRIPT=Gleicher Ordner wie dieses Skript - praktisch bei einem USB-Stick"
+set "T_R_DRVDESTPROMPT=Zielordner:"
 set "T_R_DRVIMPORTPROMPT=Ordner mit den exportierten Treibern:"
 set "T_R_DRVPATHNOTFOUND=Dieser Ordner wurde nicht gefunden."
 set "T_R_DRVIMPORTCONFIRM=Dies installiert jeden in diesem Ordner gefundenen Treiber fuer passende Hardware auf diesem PC. Fortfahren?"
@@ -1047,6 +1178,17 @@ set "T_N_SPEEDCONFIRM=Dies installiert Ooklas offizielle Speedtest-CLI, etwa 15 
 set "T_N_SPEEDINSTALLING=Speedtest-CLI wird installiert, einmalig ueber winget..."
 set "T_N_SPEEDRETRY=Installiert. Bitte schliessen Sie dieses Toolkit und starten Sie es erneut, dann fuehren Sie den Geschwindigkeitstest noch einmal aus."
 set "T_N_SPEEDRUNNING=Geschwindigkeitstest laeuft..."
+set "T_N14=IP-Adresse konfigurieren"
+set "T_N14D=DHCP oder manuelle statische IP"
+set "T_N_ADAPTERPROMPT=Adaptername, genau wie oben angezeigt:"
+set "T_N_DHCP=Automatisch, DHCP"
+set "T_N_STATIC=Manuell, statische IP"
+set "T_N_DHCPCONFIRM=Dies stellt den Adapter zurueck auf automatische Adressierung. Fortfahren?"
+set "T_N_IPDONE=Fertig."
+set "T_N_IPPROMPT=IP-Adresse:"
+set "T_N_MASKPROMPT=Subnetzmaske, z. B. 255.255.255.0, oder ein Prefix wie /24:"
+set "T_N_GWPROMPT=Standardgateway:"
+set "T_N_STATICCONFIRM=Dies setzt eine statische IP-Adresse auf diesem Adapter:"
 set "T_N_ROUTEROK=Router erreichbar -"
 set "T_N_ROUTERFAIL=Router antwortet nicht -"
 set "T_N_NOGATEWAY=Kein Standardgateway - Kabel oder WLAN pruefen"
@@ -1126,6 +1268,10 @@ set "T_M5D=Gecici dosyalar, Disk Temizleme, bilesen deposu"
 set "T_M6=Guc ve Onyukleme"
 set "T_M6D=BIOS, Gelismis Baslangic, Guvenli Mod"
 set "T_M7=Raporlar Klasorunu Ac"
+set "T_M8=Sistem Izleyici"
+set "T_M8D=Canli CPU, RAM, disk, ag kullanimi"
+set "T_MON_TITLE=CANLI SISTEM IZLEYICI"
+set "T_MON_EXITHINT=Cikmak icin herhangi bir tusa basin..."
 set "T_C1=CMD"
 set "T_C2=PowerShell"
 set "T_C3=Kayit Defteri Duzenleyicisi"
@@ -1187,6 +1333,10 @@ set "T_R13=Bir klasorden suruculeri ice aktar"
 set "T_R13D=pnputil, bu PC icin yukler"
 set "T_R_DRVEXPORTING=Suruculer disa aktariliyor, lutfen bekleyin..."
 set "T_R_DRVEXPORTDONE=Suruculer su konuma aktarildi:"
+set "T_R_DRVDESTDEFAULT=Varsayilan konum - TechToolkit_Reports"
+set "T_R_DRVDESTCUSTOM=Ozel bir klasor sec"
+set "T_R_DRVDESTSCRIPT=Bu betikle ayni klasor - USB'den calistirirken pratik"
+set "T_R_DRVDESTPROMPT=Hedef klasor:"
 set "T_R_DRVIMPORTPROMPT=Disa aktarilan suruculerin bulundugu klasor:"
 set "T_R_DRVPATHNOTFOUND=Bu klasor bulunamadi."
 set "T_R_DRVIMPORTCONFIRM=Bu islem, o klasorde bulunan ve bu PC'deki uyumlu donanima ait tum suruculeri yukler. Devam edilsin mi?"
@@ -1228,6 +1378,17 @@ set "T_N_SPEEDCONFIRM=Bu islem, winget araciligiyla Ookla'nin resmi Speedtest CL
 set "T_N_SPEEDINSTALLING=Speedtest CLI yukleniyor, winget araciligiyla tek seferlik..."
 set "T_N_SPEEDRETRY=Yuklendi. Lutfen bu arac setini kapatip yeniden acin, ardindan hiz testini tekrar calistirin."
 set "T_N_SPEEDRUNNING=Hiz testi calisiyor..."
+set "T_N14=IP adresini yapilandir"
+set "T_N14D=DHCP veya manuel statik IP"
+set "T_N_ADAPTERPROMPT=Adaptor adi, yukarida gosterildigi gibi:"
+set "T_N_DHCP=Otomatik, DHCP"
+set "T_N_STATIC=Manuel, statik IP"
+set "T_N_DHCPCONFIRM=Bu islem, adaptoru otomatik adreslemeye geri dondurur. Devam edilsin mi?"
+set "T_N_IPDONE=Tamamlandi."
+set "T_N_IPPROMPT=IP adresi:"
+set "T_N_MASKPROMPT=Alt ag maskesi, orn. 255.255.255.0, veya /24 gibi bir prefix:"
+set "T_N_GWPROMPT=Varsayilan ag gecidi:"
+set "T_N_STATICCONFIRM=Bu islem, bu adaptorde statik bir IP adresi ayarlar:"
 set "T_N_ROUTEROK=Yonlendiriciye ulasilabiliyor -"
 set "T_N_ROUTERFAIL=Yonlendirici yanit vermiyor -"
 set "T_N_NOGATEWAY=Varsayilan ag gecidi yok - kabloyu veya Wi-Fi'yi kontrol edin"

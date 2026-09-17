@@ -25,6 +25,9 @@ No installation, no dependencies. Just download and double-click.
 
 ## 📋 Menu Overview
 
+### System Monitor
+A full-screen, live-refreshing dashboard for CPU, RAM, disk activity, and network throughput, each shown as a color-coded bar (green/yellow/red by load). Updates about once a second; press any key to return to the main menu.
+
 ### 1. Admin Consoles
 | | | |
 |---|---|---|
@@ -56,7 +59,7 @@ No installation, no dependencies. Just download and double-click.
 - Update all apps with `winget`
 - Restart Windows Explorer
 - Windows Memory Diagnostic
-- **Export drivers** to a timestamped folder in `TechToolkit_Reports` (`DISM /Export-Driver`) — handy before a clean reinstall
+- **Export drivers**, with a choice of destination: the default `TechToolkit_Reports` folder, a custom path you type, or the same folder the script itself is running from (handy when running off a USB stick, so the export travels with it) — handy before a clean reinstall
 - **Import drivers from a folder** and install them for this PC's hardware (`pnputil /add-driver ... /install`)
 - **Refresh all drivers** — exports and immediately reinstalls every driver currently on the PC in one step, a quick self-contained fix for a flaky/corrupted driver with no external media needed
 
@@ -70,6 +73,7 @@ No installation, no dependencies. Just download and double-click.
 - Full network reset (Winsock and TCP/IP)
 - **Show saved Wi-Fi passwords** for every network this PC has stored credentials for
 - **Internet speed test** (download / upload / ping) via Ookla's official Speedtest CLI, installed automatically through `winget` the first time you use it
+- **Configure IP address** — switch an adapter back to DHCP, or set a manual static IP. The subnet mask accepts either dotted form (`255.255.255.0`) or a CIDR prefix (`/24`, `24`, ...), converted automatically
 
 ### 5. Cleanup
 - User temp files and Windows temp files
