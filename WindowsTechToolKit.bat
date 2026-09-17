@@ -6,6 +6,7 @@ chcp 65001 >nul
 
 :: ============================================================
 ::  WINDOWS TECHNICIAN TOOLKIT PRO
+::  Powered by BASHAR SALMO
 ::  Auto-elevates, colored menus, reports, repair and network tools
 ::  Supports English, Deutsch, Turkce and Arabic menus.
 ::  Note: output from native Windows tools (systeminfo, ipconfig,
@@ -23,6 +24,9 @@ set "R=%ESC%[91m"
 set "W=%ESC%[97m"
 set "D=%ESC%[90m"
 set "N=%ESC%[0m"
+
+:: ---- Startup splash ----
+call :Splash
 
 :: ---- Language selection (skipped if passed in as an argument, used when re-launching elevated) ----
 set "LANG=%~1"
@@ -62,12 +66,12 @@ echo  %R%[0]%N%  %T_EXIT%
 echo.
 set "opt="
 set /p "opt=%G% %T_SELECT% %N%"
-if "%opt%"=="1" goto consoles
-if "%opt%"=="2" goto sysinfo
-if "%opt%"=="3" goto repair
-if "%opt%"=="4" goto network
-if "%opt%"=="5" goto cleanup
-if "%opt%"=="6" goto power
+if "%opt%"=="1" call :Flash & goto consoles
+if "%opt%"=="2" call :Flash & goto sysinfo
+if "%opt%"=="3" call :Flash & goto repair
+if "%opt%"=="4" call :Flash & goto network
+if "%opt%"=="5" call :Flash & goto cleanup
+if "%opt%"=="6" call :Flash & goto power
 if "%opt%"=="7" start "" explorer "%RPT%" & goto main
 if "%opt%"=="0" goto quit
 call :invalid
@@ -177,6 +181,7 @@ goto sysinfo
 :infoFull
 call :stamp
 set "F=%RPT%\SystemReport_%STAMP%.txt"
+call :Spin T_S_BUILDING
 echo %C% %T_S_BUILDING%%N%
 (
   echo ===== SYSTEMINFO =====
@@ -200,6 +205,7 @@ goto sysinfo
 :infoApps
 call :stamp
 set "F=%RPT%\InstalledApps_%STAMP%.txt"
+call :Spin T_S_COLLECTING
 echo %C% %T_S_COLLECTING%%N%
 powershell -NoProfile -Command "$p='HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*'; Get-ItemProperty $p -ErrorAction SilentlyContinue | Where-Object DisplayName | Sort-Object DisplayName -Unique | Format-Table DisplayName,DisplayVersion,Publisher,InstallDate -AutoSize | Out-String -Width 250 | Set-Content -Path '%F%'"
 call :log "Saved %F%"
@@ -281,9 +287,11 @@ goto repair
 
 :repFull
 call :log "Full repair started"
+call :Spin T_R_STEP1
 echo %C% %T_R_STEP1%%N%
 DISM /Online /Cleanup-Image /RestoreHealth
 echo.
+call :Spin T_R_STEP2
 echo %C% %T_R_STEP2%%N%
 sfc /scannow
 echo.
@@ -304,6 +312,7 @@ pause
 goto repair
 
 :repRestorePt
+call :Spin T_S_BUILDING
 echo %C% %T_S_BUILDING%%N%
 powershell -NoProfile -Command "Enable-ComputerRestore -Drive '%SystemDrive%\' -ErrorAction SilentlyContinue; try { Checkpoint-Computer -Description 'TechToolkit manual restore point' -RestorePointType MODIFY_SETTINGS -ErrorAction Stop; Write-Host ' Restore point created.' -ForegroundColor Green } catch { Write-Host (' Could not create restore point: '+$_.Exception.Message) -ForegroundColor Yellow; Write-Host ' Note: Windows allows only one restore point every 24 hours by default.' }"
 call :log "Restore point attempted"
@@ -585,6 +594,53 @@ exit /b
 
 :log
 >>"%LOG%" echo [%DATE% %TIME:~0,8%] %~1
+exit /b
+
+:: ============================================================
+::  ANIMATIONS
+:: ============================================================
+:Splash
+cls
+echo.
+echo.
+echo.
+echo %C%                    ════════════════════════════%N%
+powershell -NoProfile -Command "Start-Sleep -Milliseconds 180"
+cls
+echo.
+echo.
+echo.
+echo %C%                    ════════════════════════════%N%
+echo %W%                       WINDOWS TECHNICIAN%N%
+powershell -NoProfile -Command "Start-Sleep -Milliseconds 180"
+cls
+echo.
+echo.
+echo.
+echo %C%                    ════════════════════════════%N%
+echo %W%                     WINDOWS TECHNICIAN TOOLKIT%N%
+powershell -NoProfile -Command "Start-Sleep -Milliseconds 180"
+cls
+echo.
+echo.
+echo.
+echo %C%                    ════════════════════════════%N%
+echo %W%                   WINDOWS TECHNICIAN TOOLKIT PRO%N%
+echo %C%                    ════════════════════════════%N%
+echo.
+echo %D%                       EN  ·  DE  ·  TR  ·  AR%N%
+powershell -NoProfile -Command "Start-Sleep -Milliseconds 500"
+exit /b
+
+:Spin
+setlocal
+set "MSGVAR=%~1"
+powershell -NoProfile -Command "$msg=$env:%MSGVAR%; $f='|','/','-','\'; for($i=0;$i -lt 14;$i++){ Write-Host ([char]13+'  '+$f[$i%%4]+'  '+$msg) -NoNewline -ForegroundColor Cyan; Start-Sleep -Milliseconds 90 }; Write-Host ([char]13+(' '*120)+[char]13) -NoNewline"
+endlocal
+exit /b
+
+:Flash
+powershell -NoProfile -Command "$f=' >','>> ','>>>','>>>>'; foreach($s in $f){ Write-Host ([char]13+'  '+$s) -NoNewline -ForegroundColor Cyan; Start-Sleep -Milliseconds 60 }; Write-Host ([char]13+(' '*40)+[char]13) -NoNewline"
 exit /b
 
 :: ============================================================
