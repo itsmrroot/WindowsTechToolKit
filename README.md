@@ -6,15 +6,18 @@ No installation, no dependencies. Just download and double-click.
 
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D6?logo=windows)
 ![Language](https://img.shields.io/badge/language-Batch-4D4D4D)
+![Languages](https://img.shields.io/badge/menus-EN%20%7C%20DE%20%7C%20TR%20%7C%20AR-6f42c1)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
 ## ✨ Features
 
-- **Auto-elevation.** It requests administrator rights automatically, so you don't need to right-click.
+- **Multi-language menus.** On launch, pick English, Deutsch, Türkçe, or Arabic; every menu, prompt, and status message is shown in that language for the rest of the session.
+- **Auto-elevation.** It requests administrator rights automatically, so you don't need to right-click. Your language choice is carried over when it relaunches itself elevated.
 - **Colored, categorized menus.** Six sections keep 50+ tools easy to find.
 - **Safety prompts.** Anything risky asks you to type `YES` before running.
+- **Input validation.** Typing something other than a listed number never breaks the script — it shows a warning in your chosen language and re-asks until you enter a valid option.
 - **Saved reports.** Reports are saved with timestamps to `%USERPROFILE%\TechToolkit_Reports`.
 - **Activity log.** Every action is recorded in `toolkit_log.txt`.
 - **Windows Home aware.** On Home editions, it shows a fallback or an explanation for tools that edition doesn't include.
@@ -76,18 +79,34 @@ No installation, no dependencies. Just download and double-click.
 - Startup apps and power plans
 - Restart or shut down
 
+## 🌐 Languages
+
+The first screen asks you to pick a language:
+
+| # | Language |
+|---|---|
+| 1 | English |
+| 2 | Deutsch |
+| 3 | Türkçe |
+| 4 | العربية (Arabic) |
+
+Entering anything other than `1`-`4` just shows a warning and asks again — it won't crash or silently pick a language for you. The choice is remembered through the administrator-elevation relaunch, so you're only asked once per run.
+
+> **Note:** only the toolkit's own menus and messages are translated. Output from native Windows tools invoked by the toolkit (`systeminfo`, `ipconfig`, `driverquery`, and similar) is shown in whatever language Windows itself produces it in.
+
 ## 🚀 Getting Started
 
 1. Download `WindowsTechToolkit.bat` from this repository, either through **Code → Download ZIP** or by opening the file and clicking **Download raw file**.
-2. Double-click the file and approve the administrator prompt.
+2. Double-click the file, choose your language, and approve the administrator prompt.
 3. Type a menu number and press **Enter**.
 
 > **SmartScreen warning?** Windows flags scripts downloaded from the internet. Click **More info → Run anyway**, or right-click the file, choose **Properties**, and tick **Unblock**.
 
 ## 🖥️ Requirements
 
-- Windows 10 or Windows 11 (needed for the console colors)
+- Windows 10 or Windows 11 (needed for the console colors and UTF-8 code page)
 - Administrator account
+- For the Arabic menu, a console font with Arabic glyphs (Windows Terminal handles this out of the box; the legacy `conhost` window may need a font change under console **Properties → Font**)
 - Optional: [winget](https://learn.microsoft.com/windows/package-manager/winget/) for bulk app updates
 
 ## ⚠️ Disclaimer
