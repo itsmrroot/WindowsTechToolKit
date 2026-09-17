@@ -626,7 +626,10 @@ call :confirm "%T_N_DHCPCONFIRM%" || goto network
 netsh interface ip set address name="%ADP%" dhcp
 netsh interface ip set dns name="%ADP%" dhcp
 call :log "Set %ADP% to DHCP"
+call :Spin T_N_IPAPPLYING
 echo %G% %T_N_IPDONE%%N%
+echo.
+netsh interface ip show config name="%ADP%"
 pause
 goto network
 
@@ -647,7 +650,10 @@ if not errorlevel 1 call :CidrToMask %MASK%
 call :confirm "%T_N_STATICCONFIRM% %SIP%" || goto network
 netsh interface ip set address name="%ADP%" static %SIP% %MASK% %SGW%
 call :log "Set %ADP% to static %SIP% %MASK% %SGW%"
+call :Spin T_N_IPAPPLYING
 echo %G% %T_N_IPDONE%%N%
+echo.
+netsh interface ip show config name="%ADP%"
 pause
 goto network
 
@@ -1028,6 +1034,7 @@ set "T_N_ADAPTERPROMPT=Adapter name, exactly as shown above:"
 set "T_N_DHCP=Automatic, DHCP"
 set "T_N_STATIC=Manual, static IP"
 set "T_N_DHCPCONFIRM=This switches the adapter back to automatic addressing. Continue?"
+set "T_N_IPAPPLYING=Applying network settings..."
 set "T_N_IPDONE=Done."
 set "T_N_IPPROMPT=IP address:"
 set "T_N_MASKPROMPT=Subnet mask, e.g. 255.255.255.0, or a prefix like /24:"
@@ -1228,6 +1235,7 @@ set "T_N_ADAPTERPROMPT=Adaptername, genau wie oben angezeigt:"
 set "T_N_DHCP=Automatisch, DHCP"
 set "T_N_STATIC=Manuell, statische IP"
 set "T_N_DHCPCONFIRM=Dies stellt den Adapter zurueck auf automatische Adressierung. Fortfahren?"
+set "T_N_IPAPPLYING=Netzwerkeinstellungen werden angewendet..."
 set "T_N_IPDONE=Fertig."
 set "T_N_IPPROMPT=IP-Adresse:"
 set "T_N_MASKPROMPT=Subnetzmaske, z. B. 255.255.255.0, oder ein Prefix wie /24:"
@@ -1428,6 +1436,7 @@ set "T_N_ADAPTERPROMPT=Adaptor adi, yukarida gosterildigi gibi:"
 set "T_N_DHCP=Otomatik, DHCP"
 set "T_N_STATIC=Manuel, statik IP"
 set "T_N_DHCPCONFIRM=Bu islem, adaptoru otomatik adreslemeye geri dondurur. Devam edilsin mi?"
+set "T_N_IPAPPLYING=Ag ayarlari uygulaniyor..."
 set "T_N_IPDONE=Tamamlandi."
 set "T_N_IPPROMPT=IP adresi:"
 set "T_N_MASKPROMPT=Alt ag maskesi, orn. 255.255.255.0, veya /24 gibi bir prefix:"
