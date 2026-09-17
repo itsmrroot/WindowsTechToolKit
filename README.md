@@ -27,7 +27,7 @@ No installation, no dependencies. Just download and double-click.
 
 ### System Monitor
 A full-screen, live-refreshing dashboard, updating about once a second until you press a key:
-- CPU, RAM, and disk usage as color-coded bars (green/yellow/red by load), each with a rolling trend sparkline for CPU and RAM
+- CPU, RAM, and disk usage as color-coded bars (green/yellow/red by load); CPU and RAM also get a rolling trend sparkline. Every local drive (C:, D:, G:, ...) gets its own bar, not just the system drive
 - Live network throughput (down/up, in Mbps)
 - A top-5-by-CPU process table (PID, name, live CPU%, memory)
 
