@@ -363,9 +363,10 @@ goto network
 :cleanup
 call :header "%T_H_CLEANUP%"
 echo  %Y%[1]%N%  %T_L1%
-echo  %Y%[2]%N%  %T_L3%
-echo  %Y%[3]%N%  %T_L4%
-echo  %Y%[4]%N%  %T_L6%
+echo  %Y%[2]%N%  %T_L2%
+echo  %Y%[3]%N%  %T_L3%
+echo  %Y%[4]%N%  %T_L4%
+echo  %Y%[5]%N%  %T_L6%
 echo.
 echo  %R%[0]%N%  %T_BACK%
 echo.
@@ -373,9 +374,10 @@ set "opt="
 set /p "opt=%G% %T_SELECT% %N%"
 if "%opt%"=="0" goto main
 if "%opt%"=="1" goto clnUserTemp
-if "%opt%"=="2" goto clnBin
-if "%opt%"=="3" start "" cleanmgr.exe & goto cleanup
-if "%opt%"=="4" start "" ms-settings:storagesense & goto cleanup
+if "%opt%"=="2" goto clnWinTemp
+if "%opt%"=="3" goto clnBin
+if "%opt%"=="4" start "" cleanmgr.exe & goto cleanup
+if "%opt%"=="5" start "" ms-settings:storagesense & goto cleanup
 call :invalid
 goto cleanup
 
@@ -384,6 +386,15 @@ call :confirm "%T_L_USERTEMPCONFIRM% (%TEMP%)" || goto cleanup
 del /f /s /q "%TEMP%\*" >nul 2>&1
 for /d %%d in ("%TEMP%\*") do rd /s /q "%%d" >nul 2>&1
 call :log "User temp cleared"
+echo %G% %T_DONE%%N%
+pause
+goto cleanup
+
+:clnWinTemp
+call :confirm "%T_L_WINTEMPCONFIRM% (%windir%\Temp)" || goto cleanup
+del /f /s /q "%windir%\Temp\*" >nul 2>&1
+for /d %%d in ("%windir%\Temp\*") do rd /s /q "%%d" >nul 2>&1
+call :log "Windows temp cleared"
 echo %G% %T_DONE%%N%
 pause
 goto cleanup
@@ -675,7 +686,9 @@ set "T_N_SPEEDINSTALLING=Installing Speedtest CLI, one-time via winget..."
 set "T_N_SPEEDRETRY=Installed. Please close and reopen this toolkit, then run the speed test again."
 set "T_N_SPEEDRUNNING=Running speed test..."
 set "T_L1=Clear my temp files"
+set "T_L2=Clear Windows temp files"
 set "T_L_USERTEMPCONFIRM=Delete temporary files in your Temp folder? Files in use will be skipped."
+set "T_L_WINTEMPCONFIRM=Delete files in the Windows Temp folder? Files in use will be skipped."
 set "T_L3=Empty Recycle Bin"
 set "T_L_BINCONFIRM=Permanently delete everything in the Recycle Bin?"
 set "T_L4=Disk Cleanup"
@@ -798,7 +811,9 @@ set "T_N_SPEEDINSTALLING=Speedtest-CLI wird installiert, einmalig ueber winget..
 set "T_N_SPEEDRETRY=Installiert. Bitte schliessen Sie dieses Toolkit und starten Sie es erneut, dann fuehren Sie den Geschwindigkeitstest noch einmal aus."
 set "T_N_SPEEDRUNNING=Geschwindigkeitstest laeuft..."
 set "T_L1=Meine Temp-Dateien loeschen"
+set "T_L2=Windows-Temp-Dateien loeschen"
 set "T_L_USERTEMPCONFIRM=Temporaere Dateien in Ihrem Temp-Ordner loeschen? Dateien in Verwendung werden uebersprungen."
+set "T_L_WINTEMPCONFIRM=Dateien im Windows-Temp-Ordner loeschen? Dateien in Verwendung werden uebersprungen."
 set "T_L3=Papierkorb leeren"
 set "T_L_BINCONFIRM=Alles im Papierkorb endgueltig loeschen?"
 set "T_L4=Datentraegerbereinigung"
@@ -921,7 +936,9 @@ set "T_N_SPEEDINSTALLING=Speedtest CLI yukleniyor, winget araciligiyla tek sefer
 set "T_N_SPEEDRETRY=Yuklendi. Lutfen bu arac setini kapatip yeniden acin, ardindan hiz testini tekrar calistirin."
 set "T_N_SPEEDRUNNING=Hiz testi calisiyor..."
 set "T_L1=Gecici dosyalarimi temizle"
+set "T_L2=Windows gecici dosyalarini temizle"
 set "T_L_USERTEMPCONFIRM=Temp klasorunuzdeki gecici dosyalar silinsin mi? Kullanimda olan dosyalar atlanacaktir."
+set "T_L_WINTEMPCONFIRM=Windows Temp klasorundeki dosyalar silinsin mi? Kullanimda olan dosyalar atlanacaktir."
 set "T_L3=Geri Donusum Kutusunu bosalt"
 set "T_L_BINCONFIRM=Geri Donusum Kutusundaki her sey kalici olarak silinsin mi?"
 set "T_L4=Disk Temizleme"
