@@ -622,6 +622,8 @@ if not defined SMASKIN goto network
 set "SGW="
 set /p "SGW= %T_N_GWPROMPT% "
 if not defined SGW goto network
+set "SMAC="
+set /p "SMAC= %T_N_MACPROMPT% "
 set "MASK=%SMASKIN%"
 if "%MASK:~0,1%"=="/" set "MASK=%MASK:~1%"
 echo %MASK%| findstr /r "^[0-9][0-9]*$" >nul
@@ -629,12 +631,26 @@ if not errorlevel 1 call :CidrToMask %MASK%
 call :confirm "%T_N_STATICCONFIRM% %SIP%" || goto network
 netsh interface ip set address name="%ADP%" static %SIP% %MASK% %SGW%
 call :log "Set %ADP% to static %SIP% %MASK% %SGW%"
+if defined SMAC call :SetMacAddress
 call :Spin T_N_IPAPPLYING
 echo %G% %T_N_IPDONE%%N%
 echo.
 netsh interface ip show config name="%ADP%"
 pause
 goto network
+
+:SetMacAddress
+set "MACCLEAN=%SMAC::=%"
+set "MACCLEAN=%MACCLEAN:-=%"
+set "MACCLEAN=%MACCLEAN: =%"
+powershell -NoProfile -Command "$m='%MACCLEAN%'; if ($m -notmatch '^[0-9A-Fa-f]{12}$') { exit 1 }; try { Set-NetAdapterAdvancedProperty -Name '%ADP%' -RegistryKeyword 'NetworkAddress' -RegistryValue $m -ErrorAction Stop; Restart-NetAdapter -Name '%ADP%' -Confirm:$false -ErrorAction Stop; exit 0 } catch { exit 1 }"
+if errorlevel 1 (
+    echo %R% %T_N_MACINVALID%%N%
+) else (
+    call :log "Set MAC on %ADP% to %MACCLEAN%"
+    echo %G% %T_N_MACDONE%%N%
+)
+exit /b
 
 :: ============================================================
 :cleanup
@@ -1085,6 +1101,9 @@ set "T_N_IPDONE=Done."
 set "T_N_IPPROMPT=IP address:"
 set "T_N_MASKPROMPT=Subnet mask, e.g. 255.255.255.0, or a prefix like /24:"
 set "T_N_GWPROMPT=Default gateway:"
+set "T_N_MACPROMPT=MAC address, 12 hex characters with or without : or - , e.g. 00:11:22:33:44:55 , or press Enter to leave it as is:"
+set "T_N_MACINVALID=That is not a valid MAC address, so it was skipped. The IP settings above were still applied."
+set "T_N_MACDONE=MAC address changed. The adapter was restarted to apply it."
 set "T_N_STATICCONFIRM=This sets a static IP address on that adapter:"
 set "T_N_ROUTEROK=Router reachable -"
 set "T_N_ROUTERFAIL=Router not responding -"
@@ -1284,6 +1303,9 @@ set "T_N_IPDONE=Fertig."
 set "T_N_IPPROMPT=IP-Adresse:"
 set "T_N_MASKPROMPT=Subnetzmaske, z. B. 255.255.255.0, oder ein Prefix wie /24:"
 set "T_N_GWPROMPT=Standardgateway:"
+set "T_N_MACPROMPT=MAC-Adresse, 12 Hexadezimalzeichen mit oder ohne : oder - , z. B. 00:11:22:33:44:55 , oder Eingabetaste druecken, um sie unveraendert zu lassen:"
+set "T_N_MACINVALID=Das ist keine gueltige MAC-Adresse, sie wurde uebersprungen. Die obigen IP-Einstellungen wurden trotzdem angewendet."
+set "T_N_MACDONE=MAC-Adresse geaendert. Der Adapter wurde neu gestartet, um sie zu uebernehmen."
 set "T_N_STATICCONFIRM=Dies setzt eine statische IP-Adresse auf diesem Adapter:"
 set "T_N_ROUTEROK=Router erreichbar -"
 set "T_N_ROUTERFAIL=Router antwortet nicht -"
@@ -1483,6 +1505,9 @@ set "T_N_IPDONE=Tamamlandi."
 set "T_N_IPPROMPT=IP adresi:"
 set "T_N_MASKPROMPT=Alt ag maskesi, orn. 255.255.255.0, veya /24 gibi bir prefix:"
 set "T_N_GWPROMPT=Varsayilan ag gecidi:"
+set "T_N_MACPROMPT=MAC adresi, : veya - ile veya onlarsiz 12 onaltilik karakter, orn. 00:11:22:33:44:55 , veya degistirmeden birakmak icin Enter'a basin:"
+set "T_N_MACINVALID=Bu gecerli bir MAC adresi degil, bu yuzden atlandi. Yukaridaki IP ayarlari yine de uygulandi."
+set "T_N_MACDONE=MAC adresi degistirildi. Uygulamak icin adaptor yeniden baslatildi."
 set "T_N_STATICCONFIRM=Bu islem, bu adaptorde statik bir IP adresi ayarlar:"
 set "T_N_ROUTEROK=Yonlendiriciye ulasilabiliyor -"
 set "T_N_ROUTERFAIL=Yonlendirici yanit vermiyor -"
