@@ -96,7 +96,7 @@ Since the toolkit is plain ASCII (no special console setup required), it's drawn
 - Full network reset (Winsock and TCP/IP)
 - **Show saved Wi-Fi passwords** for every network this PC has stored credentials for
 - **Internet speed test** (download / upload / ping) via Ookla's official Speedtest CLI, installed automatically through `winget` the first time you use it
-- **Configure IP address** — switch an adapter back to DHCP, or set a manual static IP. The subnet mask accepts either dotted form (`255.255.255.0`) or a CIDR prefix (`/24`, `24`, ...), converted automatically
+- **Configure IP address** — switch an adapter back to DHCP, or set a manual static IP. The subnet mask accepts either dotted form (`255.255.255.0`) or a CIDR prefix (`/24`, `24`, ...), converted automatically. Setting a static IP also offers an optional MAC address change for that adapter — press Enter to skip and leave it as is
 
 ### 5. Cleanup
 - User temp files and Windows temp files
