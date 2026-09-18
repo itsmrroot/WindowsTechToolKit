@@ -37,11 +37,15 @@ The No-Admin edition isn't a trimmed-down demo — it's a real, separately maint
 ## 📋 Menu Overview
 
 ### System Monitor
-Launches automatically in its own window as soon as you pick a language — it's not a menu option anymore, it just runs the whole time you're using the toolkit. It's a real, independent console window, so you can move it or resize it like any other window; it starts pinned to the right half of your screen and stays **always on top**, so picking a menu option or bringing the main window to focus can't cover it up or push it out of view (best effort — this needs a couple of Windows-only APIs that simply aren't there on other platforms, so if that fails for some reason, the window still opens normally, just without the pinning). Closing the main toolkit closes the monitor window too.
+Launches automatically as soon as you pick a language — it's not a menu option, it just runs for the whole session.
 
-It updates about once a second:
+- **In Windows Terminal**, it opens as a split pane inside the *same* window, on the right side (~40% of the width). If you launched from a plain `cmd.exe`/legacy console but Windows Terminal is installed, both editions automatically rehost themselves into Windows Terminal first (the admin edition does this even through the UAC prompt), so you get the merged view without doing anything extra.
+- **Without Windows Terminal**, it falls back to a separate window instead — still fully live, just not merged. That window pins itself to the right half of the screen and stays on top so picking a menu option can't cover it up (best-effort — uses a couple of Windows-only APIs; if that fails, the window still opens, just not pinned).
+- **Self-healing either way**: every time you return to the main menu, the toolkit checks (by process ID, so this works for a split pane or a separate window) whether the monitor is still running and relaunches it if you closed it. Closing the main toolkit closes the monitor too.
+
+It updates about once a second, with its layout adapting to the actual pane/window width:
 - CPU, RAM, and disk usage as color-coded bars (green/yellow/red by load); CPU and RAM also get a rolling trend sparkline. Every local drive (C:, D:, G:, ...) gets its own bar, not just the system drive
-- Live network throughput (down/up, in Mbps), plus the current IP address, subnet mask, and default gateway
+- Live network throughput (down/up, in Mbps), plus the IP address, subnet mask, and gateway of whichever adapter is actually on your default route
 - A top-5-by-CPU process table (PID, name, live CPU%, memory)
 
 Since the toolkit is plain ASCII (no special console setup required), it's drawn with `#`/`-` bars and a density-character sparkline rather than Unicode block graphics — same information, plain-text rendering.
@@ -118,7 +122,7 @@ The first screen asks you to pick a language:
 | 2 | Deutsch |
 | 3 | Türkçe |
 
-Entering anything other than `1`-`3` just shows a warning and asks again — it won't crash or silently pick a language for you. The choice is remembered through the administrator-elevation relaunch, so you're only asked once per run.
+Entering anything other than `1`-`3` just shows a warning and asks again — it won't crash or silently pick a language for you. The choice is remembered through the administrator-elevation relaunch and the Windows Terminal rehost (see System Monitor below), so you're only asked once per run no matter how many times the toolkit relaunches itself in the background.
 
 > **Note:** only the toolkit's own menus and messages are translated. Output from native Windows tools invoked by the toolkit (`systeminfo`, `ipconfig`, `driverquery`, and similar) is shown in whatever language Windows itself produces it in.
 
@@ -135,6 +139,7 @@ Entering anything other than `1`-`3` just shows a warning and asks again — it 
 - Windows 10 or Windows 11 (needed for the console colors)
 - Administrator account for `WindowsTechToolKit.bat`; any standard account works for `WindowsTechToolKit-NoAdmin.bat`
 - Optional: [winget](https://learn.microsoft.com/windows/package-manager/winget/) for bulk app updates and the internet speed test (it installs Ookla's Speedtest CLI on first use)
+- Optional: [Windows Terminal](https://learn.microsoft.com/windows/terminal/) (preinstalled on most current Windows 11 systems) for the System Monitor to open as a merged split pane instead of a separate window
 
 ## ⚠️ Disclaimer
 
