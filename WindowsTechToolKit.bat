@@ -46,7 +46,7 @@ if not defined WT_SESSION (
             start "" wt.exe cmd /c "%~f0" %LANG%
         ) else (
             echo %T_REQADMIN%
-            powershell -NoProfile -ExecutionPolicy Bypass -Command "try { Start-Process -FilePath 'wt.exe' -ArgumentList 'cmd','/c','\"%~f0\"','%LANG%' -Verb RunAs -ErrorAction Stop; exit 0 } catch { $_.Exception.Message | Out-File -FilePath (Join-Path $env:TEMP 'ttk_wt_relaunch_error.log') -Append; exit 1 }"
+            powershell -NoProfile -ExecutionPolicy Bypass -Command "$q=[char]34; try { Start-Process -FilePath 'wt.exe' -ArgumentList 'cmd','/c',($q+'%~f0'+$q),'%LANG%' -Verb RunAs -ErrorAction Stop; exit 0 } catch { $_.Exception.Message | Out-File -FilePath (Join-Path $env:TEMP 'ttk_wt_relaunch_error.log') -Append; exit 1 }"
             if errorlevel 1 (
                 powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~f0' -ArgumentList '%LANG%' -Verb RunAs"
             )
