@@ -15,10 +15,10 @@ No installation, no dependencies. Just download and double-click.
 
 | File | Elevation | What's in it |
 |---|---|---|
-| **`WindowsTechToolKit.bat`** | Auto-elevates to Administrator | Everything — including repair tools, driver management, network reset, static IP configuration, Safe Mode toggling |
+| **`WindowsTechToolKit.bat`** | Auto-elevates to Administrator | Everything — including repair tools, driver management, network reset, static IP configuration, BitLocker disk encryption, Safe Mode toggling |
 | **`WindowsTechToolKit-NoAdmin.bat`** | Never asks for admin | Only tools that genuinely work for a standard Windows user |
 
-The No-Admin edition isn't a trimmed-down demo — it's a real, separately maintained tool built by going through every single menu item and checking whether Windows actually requires elevation for it (some of this is non-obvious: `shutdown /r` and `netstat` don't need admin despite feeling like they should, while `ipconfig /release`, `netsh wlan show profile key=clear`, and anything touching SFC/DISM/CHKDSK/BCDEdit absolutely do). Repair tools, driver export/import, network reset, static IP configuration, and Safe Mode toggling are left out entirely because they genuinely require administrator rights on Windows — there's no way around that, so use the full edition for those. Everything included in the No-Admin edition — System Monitor, System Info & Reports, most of Network Tools, and the parts of Admin Consoles/Cleanup/Power that don't need elevation — is fully functional without ever prompting for admin.
+The No-Admin edition isn't a trimmed-down demo — it's a real, separately maintained tool built by going through every single menu item and checking whether Windows actually requires elevation for it (some of this is non-obvious: `shutdown /r` and `netstat` don't need admin despite feeling like they should, while `ipconfig /release`, `netsh wlan show profile key=clear`, and anything touching SFC/DISM/CHKDSK/BCDEdit absolutely do). Repair tools, driver export/import, network reset, static IP configuration, BitLocker disk encryption, and Safe Mode toggling are left out entirely because they genuinely require administrator rights on Windows — there's no way around that, so use the full edition for those. Everything included in the No-Admin edition — System Monitor, System Info & Reports, most of Network Tools, and the parts of Admin Consoles/Cleanup/Power that don't need elevation — is fully functional without ever prompting for admin.
 
 ---
 
@@ -26,7 +26,7 @@ The No-Admin edition isn't a trimmed-down demo — it's a real, separately maint
 
 - **Multi-language menus.** On launch, pick English, Deutsch, or Türkçe; every menu, prompt, and status message is shown in that language for the rest of the session.
 - **Auto-elevation.** It requests administrator rights automatically, so you don't need to right-click. Your language choice is carried over when it relaunches itself elevated.
-- **Colored, categorized menus.** Six sections keep 50+ tools easy to find.
+- **Colored, categorized menus.** Seven sections keep 50+ tools easy to find.
 - **Safety prompts.** Anything risky asks you to type `YES` before running.
 - **Input validation.** Typing something other than a listed number never breaks the script — it shows a warning in your chosen language and re-asks until you enter a valid option.
 - **Loading spinner.** Slower operations (building a full report, collecting installed software, a full repair) show an animated spinner with a status message instead of sitting there silently.
@@ -114,6 +114,14 @@ Since the toolkit is plain ASCII (no special console setup required), it's drawn
 
 ### Check for Toolkit Updates
 Downloads the latest `main` branch copy of whichever edition you're running from this repository, compares its version against yours, and if it's newer, asks for confirmation before installing it. A few sanity checks run on the download first (size, that it looks like a real script and not an error page) so nothing bad gets installed. Once confirmed, it relaunches automatically in your chosen language — no manual re-download needed.
+
+### 7. Disk Encryption (BitLocker)
+Admin edition only — BitLocker itself requires administrator rights on Windows, and isn't available at all on Windows Home editions (the toolkit detects this and tells you instead of failing).
+
+- **Show BitLocker status** for every drive on the system
+- **Turn on BitLocker for a drive**, protected by a password you set. Refuses to touch the system drive (`C:` in the usual case) — this is for data drives and USB drives, not for setting up boot-time encryption. Unlike LUKS on Linux, this doesn't destroy existing data: BitLocker encrypts a drive's existing contents in place
+- **Unlock a BitLocker-protected drive**, with either its password or its 48-digit recovery key
+- **Lock a BitLocker-protected drive** back up
 
 ## 🌐 Languages
 

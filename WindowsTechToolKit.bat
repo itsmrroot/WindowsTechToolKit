@@ -92,6 +92,7 @@ echo  %Y%[5]%N%  %T_M5%               %D%%T_M5D%%N%
 echo  %Y%[6]%N%  %T_M6%          %D%%T_M6D%%N%
 echo  %Y%[7]%N%  %T_M7%
 echo  %Y%[8]%N%  %T_M8%    %D%v%TOOLKIT_VERSION%%N%
+echo  %Y%[9]%N%  %T_M9%
 echo.
 echo  %R%[0]%N%  %T_EXIT%
 echo.
@@ -105,6 +106,7 @@ if "%opt%"=="5" call :Flash & goto cleanup
 if "%opt%"=="6" call :Flash & goto power
 if "%opt%"=="7" start "" explorer "%RPT%" & goto main
 if "%opt%"=="8" call :Flash & goto CheckUpdate
+if "%opt%"=="9" call :Flash & goto bitlocker
 if "%opt%"=="0" goto quit
 call :invalid
 goto main
@@ -999,6 +1001,27 @@ set "T_U_UPTODATE=You're already on the latest version."
 set "T_U_AVAILABLE=A newer version is available. Install it now?"
 set "T_U_SANITYFAIL=The downloaded file failed a safety check, nothing was changed."
 set "T_U_UPDATING=Installing the update. The toolkit will restart in a new window..."
+set "T_M9=BitLocker Disk Encryption"
+set "T_H_BITLOCKER=BITLOCKER DISK ENCRYPTION"
+set "T_BL_M1=Show BitLocker status"
+set "T_BL_M2=Turn on BitLocker for a drive"
+set "T_BL_M3=Unlock a BitLocker-protected drive"
+set "T_BL_M4=Lock a BitLocker-protected drive"
+set "T_BL_NOTAVAILABLE=BitLocker is not available on this edition of Windows."
+set "T_BL_DRIVEPROMPT=Drive letter, e.g. D, blank to cancel:"
+set "T_BL_SYSDRIVEBLOCK=Refusing, that is the system drive."
+set "T_BL_BADDRIVE=That drive letter does not exist."
+set "T_BL_ENCRYPTCONFIRM=This turns on BitLocker for drive"
+set "T_BL_PWHINT=You will be asked to set and confirm a password for this drive."
+set "T_BL_ENCRYPTFAIL=Could not turn on BitLocker for that drive."
+set "T_BL_ENCRYPTDONE=BitLocker is turning on. Encryption continues in the background, check status from this menu to see progress."
+set "T_BL_METHPW=Unlock with the drive's password"
+set "T_BL_METHRECOVERY=Unlock with the 48-digit recovery key"
+set "T_BL_RECOVERYPROMPT=48-digit recovery key:"
+set "T_BL_UNLOCKFAIL=Unlock failed, wrong password or recovery key."
+set "T_BL_UNLOCKDONE=Drive unlocked."
+set "T_BL_LOCKFAIL=Could not lock that drive, files may still be open on it."
+set "T_BL_LOCKDONE=Drive locked."
 set "T_MON_TITLE=LIVE SYSTEM MONITOR"
 set "T_MON_EXITHINT=Press any key to exit..."
 set "T_C1=CMD"
@@ -1211,6 +1234,27 @@ set "T_U_UPTODATE=Sie verwenden bereits die neueste Version."
 set "T_U_AVAILABLE=Eine neuere Version ist verfuegbar. Jetzt installieren?"
 set "T_U_SANITYFAIL=Die heruntergeladene Datei hat die Sicherheitspruefung nicht bestanden, es wurde nichts geaendert."
 set "T_U_UPDATING=Update wird installiert. Das Toolkit startet gleich in einem neuen Fenster neu..."
+set "T_M9=BitLocker-Laufwerksverschluesselung"
+set "T_H_BITLOCKER=BITLOCKER-LAUFWERKSVERSCHLUESSELUNG"
+set "T_BL_M1=BitLocker-Status anzeigen"
+set "T_BL_M2=BitLocker fuer ein Laufwerk aktivieren"
+set "T_BL_M3=Ein BitLocker-geschuetztes Laufwerk entsperren"
+set "T_BL_M4=Ein BitLocker-geschuetztes Laufwerk sperren"
+set "T_BL_NOTAVAILABLE=BitLocker ist in dieser Windows-Edition nicht verfuegbar."
+set "T_BL_DRIVEPROMPT=Laufwerksbuchstabe, z. B. D, leer lassen zum Abbrechen:"
+set "T_BL_SYSDRIVEBLOCK=Abgelehnt, das ist das Systemlaufwerk."
+set "T_BL_BADDRIVE=Diesen Laufwerksbuchstaben gibt es nicht."
+set "T_BL_ENCRYPTCONFIRM=Dies aktiviert BitLocker fuer Laufwerk"
+set "T_BL_PWHINT=Sie werden gebeten, ein Passwort fuer dieses Laufwerk festzulegen und zu bestaetigen."
+set "T_BL_ENCRYPTFAIL=BitLocker konnte fuer dieses Laufwerk nicht aktiviert werden."
+set "T_BL_ENCRYPTDONE=BitLocker wird aktiviert. Die Verschluesselung laeuft im Hintergrund weiter, den Fortschritt sehen Sie im Status in diesem Menue."
+set "T_BL_METHPW=Mit dem Passwort des Laufwerks entsperren"
+set "T_BL_METHRECOVERY=Mit dem 48-stelligen Wiederherstellungsschluessel entsperren"
+set "T_BL_RECOVERYPROMPT=48-stelliger Wiederherstellungsschluessel:"
+set "T_BL_UNLOCKFAIL=Entsperren fehlgeschlagen, falsches Passwort oder falscher Wiederherstellungsschluessel."
+set "T_BL_UNLOCKDONE=Laufwerk entsperrt."
+set "T_BL_LOCKFAIL=Laufwerk konnte nicht gesperrt werden, moeglicherweise sind noch Dateien darauf geoeffnet."
+set "T_BL_LOCKDONE=Laufwerk gesperrt."
 set "T_MON_TITLE=LIVE-SYSTEMMONITOR"
 set "T_MON_EXITHINT=Beliebige Taste druecken zum Beenden..."
 set "T_C1=CMD"
@@ -1423,6 +1467,27 @@ set "T_U_UPTODATE=Zaten en son surumu kullaniyorsunuz."
 set "T_U_AVAILABLE=Daha yeni bir surum mevcut. Simdi yuklensin mi?"
 set "T_U_SANITYFAIL=Indirilen dosya guvenlik kontrolunden gecemedi, hicbir sey degistirilmedi."
 set "T_U_UPDATING=Guncelleme yukleniyor. Arac seti yeni bir pencerede yeniden baslayacak..."
+set "T_M9=BitLocker Disk Sifreleme"
+set "T_H_BITLOCKER=BITLOCKER DISK SIFRELEME"
+set "T_BL_M1=BitLocker durumunu goster"
+set "T_BL_M2=Bir surucu icin BitLocker'i etkinlestir"
+set "T_BL_M3=BitLocker korumali bir surucunun kilidini ac"
+set "T_BL_M4=BitLocker korumali bir surucuyu kilitle"
+set "T_BL_NOTAVAILABLE=BitLocker bu Windows surumunde kullanilamaz."
+set "T_BL_DRIVEPROMPT=Surucu harfi, orn. D, iptal icin bos birakin:"
+set "T_BL_SYSDRIVEBLOCK=Reddedildi, bu sistem surucusu."
+set "T_BL_BADDRIVE=Bu surucu harfi mevcut degil."
+set "T_BL_ENCRYPTCONFIRM=Bu, su surucu icin BitLocker'i etkinlestirir"
+set "T_BL_PWHINT=Bu surucu icin bir parola belirlemeniz ve onaylamaniz istenecek."
+set "T_BL_ENCRYPTFAIL=Bu surucu icin BitLocker etkinlestirilemedi."
+set "T_BL_ENCRYPTDONE=BitLocker etkinlestiriliyor. Sifreleme arka planda devam eder, ilerlemeyi bu menudeki durumdan kontrol edin."
+set "T_BL_METHPW=Surucunun parolasiyla kilidini ac"
+set "T_BL_METHRECOVERY=48 haneli kurtarma anahtariyla kilidini ac"
+set "T_BL_RECOVERYPROMPT=48 haneli kurtarma anahtari:"
+set "T_BL_UNLOCKFAIL=Kilit acma basarisiz, yanlis parola veya kurtarma anahtari."
+set "T_BL_UNLOCKDONE=Surucunun kilidi acildi."
+set "T_BL_LOCKFAIL=Surucu kilitlenemedi, uzerinde hala acik dosyalar olabilir."
+set "T_BL_LOCKDONE=Surucu kilitlendi."
 set "T_MON_TITLE=CANLI SISTEM IZLEYICI"
 set "T_MON_EXITHINT=Cikmak icin herhangi bir tusa basin..."
 set "T_C1=CMD"
@@ -1665,6 +1730,125 @@ echo %G% %T_U_UPDATING%%N%
 start "TTK Updater" cmd /c "%UPDATER%"
 timeout /t 2 >nul
 goto quit
+
+:: ============================================================
+:bitlocker
+if not exist "%windir%\System32\manage-bde.exe" (
+    call :header "%T_H_BITLOCKER%"
+    echo %Y% %T_BL_NOTAVAILABLE%%N%
+    pause
+    goto main
+)
+call :header "%T_H_BITLOCKER%"
+echo  %Y%[1]%N%  %T_BL_M1%
+echo  %Y%[2]%N%  %T_BL_M2%
+echo  %Y%[3]%N%  %T_BL_M3%
+echo  %Y%[4]%N%  %T_BL_M4%
+echo.
+echo  %R%[0]%N%  %T_BACK%
+echo.
+set "opt="
+set /p "opt=%G% %T_SELECT% %N%"
+if "%opt%"=="0" goto main
+if "%opt%"=="1" goto bitStatus
+if "%opt%"=="2" goto bitEncrypt
+if "%opt%"=="3" goto bitUnlock
+if "%opt%"=="4" goto bitLock
+call :invalid
+goto bitlocker
+
+:bitStatus
+call :header "%T_H_BITLOCKER%"
+manage-bde -status
+call :log "Viewed BitLocker status"
+pause
+goto bitlocker
+
+:bitEncrypt
+call :header "%T_H_BITLOCKER%"
+manage-bde -status
+echo.
+set "BDRV="
+set /p "BDRV= %T_BL_DRIVEPROMPT% "
+if not defined BDRV goto bitlocker
+set "BDRV=%BDRV::=%"
+set "BDRV=%BDRV: =%"
+if /i "%BDRV%"=="%SystemDrive:~0,1%" (
+    echo %R% %T_BL_SYSDRIVEBLOCK%%N%
+    pause
+    goto bitlocker
+)
+if not exist "%BDRV%:\" (
+    echo %R% %T_BL_BADDRIVE%%N%
+    pause
+    goto bitlocker
+)
+call :confirm "%T_BL_ENCRYPTCONFIRM% %BDRV%:" || goto bitlocker
+echo %D% %T_BL_PWHINT%%N%
+manage-bde -on %BDRV%: -Password
+if errorlevel 1 (
+    echo %R% %T_BL_ENCRYPTFAIL%%N%
+) else (
+    call :log "BitLocker turned on for %BDRV%:"
+    echo %G% %T_BL_ENCRYPTDONE%%N%
+)
+pause
+goto bitlocker
+
+:bitUnlock
+call :header "%T_H_BITLOCKER%"
+manage-bde -status
+echo.
+set "BDRV="
+set /p "BDRV= %T_BL_DRIVEPROMPT% "
+if not defined BDRV goto bitlocker
+set "BDRV=%BDRV::=%"
+set "BDRV=%BDRV: =%"
+if not exist "%BDRV%:\" (
+    echo %R% %T_BL_BADDRIVE%%N%
+    pause
+    goto bitlocker
+)
+echo  %Y%[1]%N% %T_BL_METHPW%
+echo  %Y%[2]%N% %T_BL_METHRECOVERY%
+set "meth="
+set /p "meth=%G% %T_SELECT% %N%"
+set "RECKEY="
+if "%meth%"=="2" set /p "RECKEY= %T_BL_RECOVERYPROMPT% "
+if "%meth%"=="2" if not defined RECKEY goto bitlocker
+if "%meth%"=="2" (manage-bde -unlock %BDRV%: -RecoveryPassword %RECKEY%) else (manage-bde -unlock %BDRV%: -Password)
+if errorlevel 1 (
+    echo %R% %T_BL_UNLOCKFAIL%%N%
+) else (
+    call :log "Unlocked BitLocker drive %BDRV%:"
+    echo %G% %T_BL_UNLOCKDONE%%N%
+)
+pause
+goto bitlocker
+
+:bitLock
+call :header "%T_H_BITLOCKER%"
+manage-bde -status
+echo.
+set "BDRV="
+set /p "BDRV= %T_BL_DRIVEPROMPT% "
+if not defined BDRV goto bitlocker
+set "BDRV=%BDRV::=%"
+set "BDRV=%BDRV: =%"
+if not exist "%BDRV%:\" (
+    echo %R% %T_BL_BADDRIVE%%N%
+    pause
+    goto bitlocker
+)
+manage-bde -lock %BDRV%:
+if errorlevel 1 (
+    echo %R% %T_BL_LOCKFAIL%%N%
+) else (
+    call :log "Locked BitLocker drive %BDRV%:"
+    echo %G% %T_BL_LOCKDONE%%N%
+)
+pause
+goto bitlocker
 
 :quit
 call :log "Toolkit closed"
