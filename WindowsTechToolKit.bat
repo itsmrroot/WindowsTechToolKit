@@ -69,7 +69,7 @@ set "LOG=%RPT%\toolkit_log.txt"
 call :log "Toolkit started (lang=%LANG%)"
 
 :: ---- Version and update source ----
-set "TOOLKIT_VERSION=1.1.0"
+set "TOOLKIT_VERSION=1.1.1"
 set "GITHUB_REPO=itsmrroot/WindowsTechToolKit"
 set "GITHUB_FILE=WindowsTechToolKit.bat"
 
@@ -1686,6 +1686,14 @@ if errorlevel 1 (
     pause
     goto main
 )
+for %%A in ("%UPDFILE%") do set "UPDSIZE=%%~zA"
+if not defined UPDSIZE set "UPDSIZE=0"
+if %UPDSIZE% lss 20000 (
+    echo %R% %T_U_SANITYFAIL%%N%
+    del /f /q "%UPDFILE%" >nul 2>&1
+    pause
+    goto main
+)
 set "REMOTEVER="
 for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = Select-String -Path '%UPDFILE%' -Pattern 'TOOLKIT_VERSION=([0-9]+\.[0-9]+\.[0-9]+).' -List; if ($m) { $m.Matches[0].Groups[1].Value }"`) do set "REMOTEVER=%%v"
 if not defined REMOTEVER (
@@ -1706,17 +1714,6 @@ if errorlevel 1 (
 )
 echo.
 call :confirm "%T_U_AVAILABLE%" || (del /f /q "%UPDFILE%" >nul 2>&1 & goto main)
-for %%A in ("%UPDFILE%") do set "UPDSIZE=%%~zA"
-set "UPDOK=1"
-if %UPDSIZE% lss 20000 set "UPDOK=0"
-findstr /b /c:"@echo off" "%UPDFILE%" >nul || set "UPDOK=0"
-findstr /i /c:"<html" "%UPDFILE%" >nul && set "UPDOK=0"
-if "%UPDOK%"=="0" (
-    echo %R% %T_U_SANITYFAIL%%N%
-    del /f /q "%UPDFILE%" >nul 2>&1
-    pause
-    goto main
-)
 set "UPDATER=%TEMP%\ttk_updater_%RANDOM%.bat"
 if exist "%UPDATER%" del /f /q "%UPDATER%" >nul 2>&1
 > "%UPDATER%" echo @echo off
