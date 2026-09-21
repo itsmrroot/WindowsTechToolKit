@@ -112,6 +112,9 @@ Since the toolkit is plain ASCII (no special console setup required), it's drawn
 - Startup apps and power plans
 - Restart or shut down
 
+### Check for Toolkit Updates
+Downloads the latest `main` branch copy of whichever edition you're running from this repository, compares its version against yours, and if it's newer, asks for confirmation before installing it. A few sanity checks run on the download first (size, that it looks like a real script and not an error page) so nothing bad gets installed. Once confirmed, it relaunches automatically in your chosen language — no manual re-download needed.
+
 ## 🌐 Languages
 
 The first screen asks you to pick a language:
