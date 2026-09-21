@@ -66,6 +66,11 @@ if not exist "%RPT%" md "%RPT%"
 set "LOG=%RPT%\toolkit_log.txt"
 call :log "Toolkit (No Admin edition) started (lang=%LANG%)"
 
+:: ---- Version and update source ----
+set "TOOLKIT_VERSION=1.0.0"
+set "GITHUB_REPO=itsmrroot/WindowsTechToolKit"
+set "GITHUB_FILE=WindowsTechToolKit-NoAdmin.bat"
+
 :: ============================================================
 :main
 set "MONPID="
@@ -84,6 +89,7 @@ echo  %Y%[4]%N%  %T_M4%         %D%%T_M4D%%N%
 echo  %Y%[5]%N%  %T_M5%               %D%%T_M5D%%N%
 echo  %Y%[6]%N%  %T_M6%          %D%%T_M6D%%N%
 echo  %Y%[7]%N%  %T_M7%
+echo  %Y%[8]%N%  %T_M8%    %D%v%TOOLKIT_VERSION%%N%
 echo.
 echo  %R%[0]%N%  %T_EXIT%
 echo.
@@ -96,6 +102,7 @@ if "%opt%"=="4" call :Flash & goto network
 if "%opt%"=="5" call :Flash & goto cleanup
 if "%opt%"=="6" call :Flash & goto power
 if "%opt%"=="7" start "" explorer "%RPT%" & goto main
+if "%opt%"=="8" call :Flash & goto CheckUpdate
 if "%opt%"=="0" goto quit
 call :invalid
 goto main
@@ -625,6 +632,16 @@ set "T_M4=Network Tools"
 set "T_M5=Cleanup"
 set "T_M6=Power and Boot"
 set "T_M7=Open Reports Folder"
+set "T_M8=Check for Toolkit Updates"
+set "T_U_CHECKING=Checking GitHub for a newer version..."
+set "T_U_UNREACHABLE=Couldn't reach GitHub. Check your internet connection."
+set "T_U_NOVERSION=Couldn't read a version number from the downloaded file."
+set "T_U_INSTALLED=Installed"
+set "T_U_LATEST=Latest on GitHub"
+set "T_U_UPTODATE=You're already on the latest version."
+set "T_U_AVAILABLE=A newer version is available. Install it now?"
+set "T_U_SANITYFAIL=The downloaded file failed a safety check, nothing was changed."
+set "T_U_UPDATING=Installing the update. The toolkit will restart in a new window..."
 set "T_C1=CMD"
 set "T_C2=PowerShell"
 set "T_C3=Registry Editor"
@@ -750,6 +767,16 @@ set "T_M4=Netzwerktools"
 set "T_M5=Bereinigung"
 set "T_M6=Energie und Start"
 set "T_M7=Berichtsordner oeffnen"
+set "T_M8=Nach Toolkit-Updates suchen"
+set "T_U_CHECKING=GitHub wird auf eine neuere Version geprueft..."
+set "T_U_UNREACHABLE=GitHub konnte nicht erreicht werden. Pruefen Sie Ihre Internetverbindung."
+set "T_U_NOVERSION=Aus der heruntergeladenen Datei konnte keine Versionsnummer gelesen werden."
+set "T_U_INSTALLED=Installiert"
+set "T_U_LATEST=Neueste Version auf GitHub"
+set "T_U_UPTODATE=Sie verwenden bereits die neueste Version."
+set "T_U_AVAILABLE=Eine neuere Version ist verfuegbar. Jetzt installieren?"
+set "T_U_SANITYFAIL=Die heruntergeladene Datei hat die Sicherheitspruefung nicht bestanden, es wurde nichts geaendert."
+set "T_U_UPDATING=Update wird installiert. Das Toolkit startet gleich in einem neuen Fenster neu..."
 set "T_C1=CMD"
 set "T_C2=PowerShell"
 set "T_C3=Registrierungs-Editor"
@@ -875,6 +902,16 @@ set "T_M4=Ag Araclari"
 set "T_M5=Temizlik"
 set "T_M6=Guc ve Onyukleme"
 set "T_M7=Raporlar Klasorunu Ac"
+set "T_M8=Arac Seti Guncellemelerini Kontrol Et"
+set "T_U_CHECKING=Daha yeni bir surum icin GitHub kontrol ediliyor..."
+set "T_U_UNREACHABLE=GitHub'a ulasilamadi. Internet baglantinizi kontrol edin."
+set "T_U_NOVERSION=Indirilen dosyadan bir surum numarasi okunamadi."
+set "T_U_INSTALLED=Yuklu"
+set "T_U_LATEST=GitHub'daki en son surum"
+set "T_U_UPTODATE=Zaten en son surumu kullaniyorsunuz."
+set "T_U_AVAILABLE=Daha yeni bir surum mevcut. Simdi yuklensin mi?"
+set "T_U_SANITYFAIL=Indirilen dosya guvenlik kontrolunden gecemedi, hicbir sey degistirilmedi."
+set "T_U_UPDATING=Guncelleme yukleniyor. Arac seti yeni bir pencerede yeniden baslayacak..."
 set "T_C1=CMD"
 set "T_C2=PowerShell"
 set "T_C3=Kayit Defteri Duzenleyicisi"
@@ -965,6 +1002,87 @@ set "T_NOADMIN_NOTE=Bu surum, yonetici hakki gerektiren her seyi kasitli olarak 
 set "T_NOADMIN_CONTINUE=Devam etmek icin herhangi bir tusa basin..."
 set "T_N8D=yalnizca isimler, sifre yok"
 exit /b
+
+:: ============================================================
+:VerGt
+:: %1 = version a, %2 = version b -- exit /b 0 if a is greater, else exit /b 1
+set "A1=" & set "A2=" & set "A3="
+set "B1=" & set "B2=" & set "B3="
+for /f "tokens=1,2,3 delims=." %%a in ("%~1") do (
+    set "A1=%%a" & set "A2=%%b" & set "A3=%%c"
+)
+for /f "tokens=1,2,3 delims=." %%a in ("%~2") do (
+    set "B1=%%a" & set "B2=%%b" & set "B3=%%c"
+)
+if not defined A1 set "A1=0"
+if not defined A2 set "A2=0"
+if not defined A3 set "A3=0"
+if not defined B1 set "B1=0"
+if not defined B2 set "B2=0"
+if not defined B3 set "B3=0"
+if %A1% gtr %B1% exit /b 0
+if %A1% lss %B1% exit /b 1
+if %A2% gtr %B2% exit /b 0
+if %A2% lss %B2% exit /b 1
+if %A3% gtr %B3% exit /b 0
+exit /b 1
+
+:CheckUpdate
+call :header "%T_M8%"
+echo %D% %T_U_CHECKING%%N%
+set "UPDFILE=%TEMP%\ttk_update_%RANDOM%.bat"
+if exist "%UPDFILE%" del /f /q "%UPDFILE%" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/%GITHUB_REPO%/main/%GITHUB_FILE%' -OutFile '%UPDFILE%' -TimeoutSec 15 -ErrorAction Stop; exit 0 } catch { exit 1 }"
+if errorlevel 1 (
+    echo %R% %T_U_UNREACHABLE%%N%
+    del /f /q "%UPDFILE%" >nul 2>&1
+    pause
+    goto main
+)
+set "REMOTEVER="
+for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "$m = Select-String -Path '%UPDFILE%' -Pattern 'TOOLKIT_VERSION=([0-9]+\.[0-9]+\.[0-9]+).' -List; if ($m) { $m.Matches[0].Groups[1].Value }"`) do set "REMOTEVER=%%v"
+if not defined REMOTEVER (
+    echo %R% %T_U_NOVERSION%%N%
+    del /f /q "%UPDFILE%" >nul 2>&1
+    pause
+    goto main
+)
+echo  %T_U_INSTALLED%: %TOOLKIT_VERSION%
+echo  %T_U_LATEST%: %REMOTEVER%
+call :VerGt "%REMOTEVER%" "%TOOLKIT_VERSION%"
+if errorlevel 1 (
+    echo.
+    echo %G% %T_U_UPTODATE%%N%
+    del /f /q "%UPDFILE%" >nul 2>&1
+    pause
+    goto main
+)
+echo.
+call :confirm "%T_U_AVAILABLE%" || (del /f /q "%UPDFILE%" >nul 2>&1 & goto main)
+for %%A in ("%UPDFILE%") do set "UPDSIZE=%%~zA"
+set "UPDOK=1"
+if %UPDSIZE% lss 20000 set "UPDOK=0"
+findstr /b /c:"@echo off" "%UPDFILE%" >nul || set "UPDOK=0"
+findstr /i /c:"<html" "%UPDFILE%" >nul && set "UPDOK=0"
+if "%UPDOK%"=="0" (
+    echo %R% %T_U_SANITYFAIL%%N%
+    del /f /q "%UPDFILE%" >nul 2>&1
+    pause
+    goto main
+)
+set "UPDATER=%TEMP%\ttk_updater_%RANDOM%.bat"
+if exist "%UPDATER%" del /f /q "%UPDATER%" >nul 2>&1
+> "%UPDATER%" echo @echo off
+>>"%UPDATER%" echo timeout /t 2 /nobreak ^>nul
+>>"%UPDATER%" echo copy /y "%UPDFILE%" "%~f0" ^>nul
+>>"%UPDATER%" echo del /f /q "%UPDFILE%"
+>>"%UPDATER%" echo start "" "%~f0" %LANG%
+>>"%UPDATER%" echo del /f /q "%UPDATER%"
+call :log "Self-update to %REMOTEVER% started"
+echo %G% %T_U_UPDATING%%N%
+start "TTK Updater" cmd /c "%UPDATER%"
+timeout /t 2 >nul
+goto quit
 
 :quit
 call :log "Toolkit closed"
