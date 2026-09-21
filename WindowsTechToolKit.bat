@@ -69,7 +69,7 @@ set "LOG=%RPT%\toolkit_log.txt"
 call :log "Toolkit started (lang=%LANG%)"
 
 :: ---- Version and update source ----
-set "TOOLKIT_VERSION=1.0.0"
+set "TOOLKIT_VERSION=1.1.0"
 set "GITHUB_REPO=itsmrroot/WindowsTechToolKit"
 set "GITHUB_FILE=WindowsTechToolKit.bat"
 
